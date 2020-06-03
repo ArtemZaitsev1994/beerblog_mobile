@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:beerblog/common/utils.dart';
+import 'package:beerblog/common/jsonModels.dart';
 import 'package:beerblog/elems/mainDrawer.dart';
 import 'package:beerblog/screens/beer/beerJson.dart';
 import 'package:dio/dio.dart';
@@ -12,14 +13,15 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'utils.dart';
 
-class BeerList extends StatefulWidget {
-  const BeerList({Key key}) : super(key: key);
+class AlcoholList extends StatefulWidget {
+  const AlcoholList({Key key}) : super(key: key);
   @override
-  _BeerListState createState() => _BeerListState();
+  _AlcoholListState createState() => _AlcoholListState();
 }
 
-class _BeerListState extends State<BeerList>
+class _AlcoholListState extends State<AlcoholList>
     with SingleTickerProviderStateMixin {
 // Общий класс для алкоголя, нужно переписать методы
 //   _sendAlcoholItem
@@ -584,8 +586,8 @@ class _BeerListState extends State<BeerList>
     newBeerData = {
       'name': beerName.toString(),
       'manufacturer': manufacturer == null ? null : manufacturer.toString(),
-      'alcohol': alcohol.toDouble(),
-      'fortress': fortress.toDouble(),
+      'alcohol': alcohol.toInt(),
+      'fortress': fortress.toInt(),
       'ibu': ibu == null ? null : ibu.toInt(),
       'review': review.toString(),
       'rate': rate.toInt(),

@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
-import '../../utils.dart';
+import '../../common/utils.dart';
 
 class Auth extends StatefulWidget {
   @override

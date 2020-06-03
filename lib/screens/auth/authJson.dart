@@ -30,28 +30,3 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
   Map<String, dynamic> toJson() => _$UserToJson(this);
 }
-
-
-
-@JsonSerializable()
-class StandartAnswer {
-  bool success;
-  String message;
-
-  StandartAnswer({this.success, this.message});
-
-  factory StandartAnswer.fromJson(Map<String, dynamic> json) => _$StandartAnswerFromJson(json);
-}
-
-
-@JsonSerializable()
-class RatingAnswer {
-  bool success;
-  String message;
-  int newRate;
-
-  RatingAnswer({this.success, this.message});
-
-  factory RatingAnswer.fromJson(Map<String, dynamic> json) => _$RatingAnswerFromJson(json);
-}
-

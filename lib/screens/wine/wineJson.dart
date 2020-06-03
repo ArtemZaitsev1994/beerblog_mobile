@@ -1,40 +1,40 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'beerJson.g.dart';
+part 'wineJson.g.dart';
 
 
 @JsonSerializable()
-class BeerData {
-  List<Beer> beer;
+class WineData {
+  List<Wine> wine;
   Pagination pagination;
 
-  BeerData({this.beer, this.pagination});
+  WineData({this.wine, this.pagination});
 
-  factory BeerData.fromJson(Map<String, dynamic> json) => _$BeerDataFromJson(json);
-  Map<String, dynamic> toJson() => _$BeerDataToJson(this);
+  factory WineData.fromJson(Map<String, dynamic> json) => _$WineDataFromJson(json);
+  Map<String, dynamic> toJson() => _$WineDataToJson(this);
 }
 
 @JsonSerializable()
-class BeerDataItem {
-  Beer beer;
+class WineDataItem {
+  Wine wine;
 
-  BeerDataItem({this.beer});
+  WineDataItem({this.wine});
 
-  factory BeerDataItem.fromJson(Map<String, dynamic> json) => _$BeerDataItemFromJson(json);
-  Map<String, dynamic> toJson() => _$BeerDataItemToJson(this);
+  factory WineDataItem.fromJson(Map<String, dynamic> json) => _$WineDataItemFromJson(json);
+  Map<String, dynamic> toJson() => _$WineDataItemToJson(this);
 }
 
 @JsonSerializable()
-class Beer {
+class Wine {
   @JsonKey(name: '_id')
-  final String beerId;
+  final String wineId;
   final String name;
   final int rate;
   final String manufacturer;
   final String review;
   final String others;
-  final double fortress;
-  final dynamic ibu;
+  final String sugar;
+  final String style;
   final double alcohol;
   final String avatar;
   final String mini_avatar;
@@ -43,16 +43,16 @@ class Beer {
   final Map<String, int> rates;
   final String postedBy;
 
-  Beer({
-    this.beerId, this.name, this.rate,
+  Wine({
+    this.wineId, this.name, this.rate,
     this.manufacturer, this.review, this.others,
-    this.fortress, this.ibu, this.alcohol,
-    this.avatar, this.mini_avatar, this.photos,
-    this.comments, this.rates, this.postedBy
+    this.alcohol, this.avatar, this.mini_avatar,
+    this.photos, this.comments, this.rates,
+    this.postedBy, this.style, this.sugar
   });
 
-  factory Beer.fromJson(Map<String, dynamic> json) => _$BeerFromJson(json);
-  Map<String, dynamic> toJson() => _$BeerToJson(this);
+  factory Wine.fromJson(Map<String, dynamic> json) => _$WineFromJson(json);
+  Map<String, dynamic> toJson() => _$WineToJson(this);
 }
 
 

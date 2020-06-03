@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:beerblog/common/utils.dart';
 import 'package:beerblog/elems/mainDrawer.dart';
-import 'package:beerblog/screens/beer/beerJson.dart';
+import 'package:beerblog/screens/wine/wineJson.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,24 +13,24 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class BeerList extends StatefulWidget {
-  const BeerList({Key key}) : super(key: key);
+class WineList extends StatefulWidget {
+  const WineList({Key key}) : super(key: key);
   @override
-  _BeerListState createState() => _BeerListState();
+  _WineListState createState() => _WineListState();
 }
 
-class _BeerListState extends State<BeerList>
+class _WineListState extends State<WineList>
     with SingleTickerProviderStateMixin {
 // Общий класс для алкоголя, нужно переписать методы
-//   _sendAlcoholItem
 //   _firstScreen
 //   _secondScreen
 //   _drawNewAlcoholItemForm
+//   _sendAlcoholItem
   SortingBloc sorting = SortingBloc();
   bool needSort = true;
   var user;
   int page = 1;
-  final urlListItems = 'http://212.220.216.173:10501/beer/get_beer';
+  final urlListItems = 'http://212.220.216.173:10501/wine/get_wine';
   List<String> sortItems = ["Новые", "Старые", "Лучшие", "Худшие"];
   String currentSort;
   String serverAnswer = '';
@@ -39,7 +39,7 @@ class _BeerListState extends State<BeerList>
   String emptyString;
   String userName;
 
-  String beerName;
+  String wineName;
   String manufacturer;
   double alcohol;
   double fortress;
@@ -52,6 +52,11 @@ class _BeerListState extends State<BeerList>
 
   List<Widget> screenNames = [Text('Просмотр'), Text('Добавить новое')];
   List<Widget> screens;
+
+  static List<String> styles = ['Белое', 'Красное', 'Розовое', 'Игристое', 'Фруктовое', 'Другое'];
+  static List<String> sugarStyles = ['Сладкое', 'Полусладкое', 'Полусухое', 'Сухое', 'Другое'];
+  String style;
+  String sugar;
 
   @override
   void initState() {
@@ -236,7 +241,7 @@ class _BeerListState extends State<BeerList>
               future: getAlcoholList(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  BeerData beerList = BeerData.fromJson(json.decode(utf8.decode(snapshot.data)));
+                  WineData wineList = WineData.fromJson(json.decode(utf8.decode(snapshot.data)));
                   return Column(children: <Widget>[
                     Expanded(
                         flex: 1,
@@ -253,27 +258,27 @@ class _BeerListState extends State<BeerList>
                     Expanded(
                       flex: 9,
                       child: ListView.builder(
-                          itemCount: beerList.beer.length,
+                          itemCount: wineList.wine.length,
                           itemBuilder: (context, index) {
                             return Card(
                                 child: InkWell(
                               child: ListTile(
                                   title:
-                                      Text('${beerList.beer[index].name}'),
+                                      Text('${wineList.wine[index].name}'),
                                   leading: Image.network(
-                                      '${beerList.beer[index].mini_avatar}'),
+                                      '${wineList.wine[index].mini_avatar}'),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
                                       Icon(Icons.star, color: Colors.yellow),
-                                      Text(beerList.beer[index].rate
+                                      Text(wineList.wine[index].rate
                                           .toString())
                                     ],
                                   )),
                               onTap: () {
-                                Navigator.pushNamed(context, "/beer_item",
+                                Navigator.pushNamed(context, "/wine_item",
                                     arguments:
-                                        beerList.beer[index].beerId);
+                                        wineList.wine[index].wineId);
                               },
                             ));
                           }),
@@ -285,7 +290,7 @@ class _BeerListState extends State<BeerList>
                             child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children:
-                                    makePagination(beerList.pagination))))
+                                    makePagination(wineList.pagination))))
                   ]);
                 } else if (snapshot.hasError) {
                   return Text('Error');
@@ -302,7 +307,7 @@ class _BeerListState extends State<BeerList>
         margin: const EdgeInsets.all(10.0),
         child: Column(
           children: <Widget>[
-            Text('Добавить пиво в коллекцию',
+            Text('Добавить вино в коллекцию',
                 style: TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
@@ -317,7 +322,7 @@ class _BeerListState extends State<BeerList>
                 ),
                 onChanged: (value) {
                   setState(() {
-                    beerName = value;
+                    wineName = value;
                   });
                 }),
             SizedBox(height: 10),
@@ -337,7 +342,9 @@ class _BeerListState extends State<BeerList>
             Row(
               children: <Widget>[
                 Expanded(
-                  child: TextField(
+                  child: Container(
+                    height: 60,
+                    child: TextField(
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
@@ -350,39 +357,79 @@ class _BeerListState extends State<BeerList>
                           alcohol = double.parse(value);
                         });
                       }),
-                ),
+                )),
                 SizedBox(width: 10),
                 Expanded(
-                  child: TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Плотность',
-                        fillColor: Colors.black54,
-                        focusColor: Colors.black,
-                      ),
-                      onChanged: (value) {
+                  child: Container(
+                    height: 60,
+                    padding: EdgeInsets.symmetric(horizontal: 10.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3.0),
+                      border: Border.all(
+                          color: Colors.black54, style: BorderStyle.solid, width: 0.80),
+                    ),
+                    child: DropdownButton<String>(
+                      value: style,
+                      hint: Text('Стиль'),
+                      underline: SizedBox(),
+                      icon: Icon(Icons.keyboard_arrow_down),
+                      iconSize: 24,
+                      elevation: 16,
+                      style: TextStyle(color: Colors.white),
+                      onChanged: (String newValue) {
                         setState(() {
-                          fortress = double.parse(value);
+                          style = newValue;
                         });
-                      }),
-                ),
+                      },
+                      items: styles
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.19,
+                            child: Text(value.toString(),
+                                style: TextStyle(color: Colors.black)),
+                          )
+                        );
+                      }).toList(),
+                    ),
+                )),
                 SizedBox(width: 10),
                 Expanded(
-                  child: TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'IBU',
-                        fillColor: Colors.black54,
-                        focusColor: Colors.black,
-                      ),
-                      onChanged: (value) {
+                  child: Container(
+                    height: 60,
+                    padding: EdgeInsets.symmetric(horizontal: 10.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3.0),
+                      border: Border.all(
+                          color: Colors.black54, style: BorderStyle.solid, width: 0.80),
+                    ),
+                    child: DropdownButton<String>(
+                      value: sugar,
+                      hint: Text('Вид'),
+                      underline: SizedBox(),
+                      icon: Icon(Icons.keyboard_arrow_down),
+                      iconSize: 24,
+                      elevation: 16,
+                      style: TextStyle(color: Colors.white),
+                      onChanged: (String newValue) {
                         setState(() {
-                          ibu = double.parse(value);
+                          sugar = newValue;
                         });
-                      }),
-                ),
+                      },
+                      items: sugarStyles
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.19,
+                            child: Text(value.toString(),
+                                style: TextStyle(color: Colors.black)),
+                          )
+                        );
+                      }).toList(),
+                    ),
+                )),
               ],
             ),
             SizedBox(
@@ -469,7 +516,7 @@ class _BeerListState extends State<BeerList>
                 SizedBox(width: 10.0),
                 RaisedButton(
                   onPressed: _sendAlcoholItem,
-                  child: Text('Загрузить пиво'),
+                  child: Text('Загрузить вино'),
                 )
               ],
             ),
@@ -560,14 +607,14 @@ class _BeerListState extends State<BeerList>
   void _sendAlcoholItem() async {
     List<String> errors = [];
 
-    if (beerName == null) {
+    if (wineName == null) {
       errors.add('Название');
     }
     if (alcohol == null) {
       errors.add('Алкоголь %');
     }
-    if (fortress == null) {
-      errors.add('Плотность');
+    if (style == null) {
+      errors.add('Стиль');
     }
     if (review == null) {
       errors.add('Описание');
@@ -582,15 +629,15 @@ class _BeerListState extends State<BeerList>
 
     var newBeerData = Map<String, dynamic>();
     newBeerData = {
-      'name': beerName.toString(),
+      'name': wineName.toString(),
       'manufacturer': manufacturer == null ? null : manufacturer.toString(),
       'alcohol': alcohol.toDouble(),
-      'fortress': fortress.toDouble(),
-      'ibu': ibu == null ? null : ibu.toInt(),
+      'style': style.toString(),
+      'sugar': sugar == null ? null : sugar.toString(),
       'review': review.toString(),
       'rate': rate.toInt(),
       'others': others == null ? null : others.toString(),
-      'alcohol_type': 'beer',
+      'alcohol_type': 'wine',
       'photos': file == null
           ? null
           : await MultipartFile.fromFile(file.path, filename: 'filename'),
@@ -615,7 +662,7 @@ class _BeerListState extends State<BeerList>
     if (response.statusCode == 200) {
       if (response.data['success']) {
         setState(() {
-          serverAnswer = 'Пиво $beerName успешно добавлено.';
+          serverAnswer = 'Вино $wineName успешно добавлено.';
           serverAnswerStyle = TextStyle(color: Colors.green);
         });
       } else {

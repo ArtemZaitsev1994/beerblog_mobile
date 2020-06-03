@@ -2,9 +2,7 @@ import 'dart:convert';
 
 import 'package:beerblog/common/jsonModels.dart';
 import 'package:beerblog/elems/comments.dart';
-import 'package:beerblog/elems/mainDrawer.dart';
-import 'package:beerblog/screens/auth/authJson.dart';
-import 'package:beerblog/screens/beer/beerJson.dart';
+import 'package:beerblog/screens/wine/wineJson.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -12,15 +10,15 @@ import 'package:http/http.dart' as http;
 
 import '../../common/utils.dart';
 
-class BeerItem extends StatefulWidget {
+class WineItem extends StatefulWidget {
   @override
-  _BeerItemState createState() => _BeerItemState();
+  _WineItemState createState() => _WineItemState();
 }
 
-class _BeerItemState extends State<BeerItem> {
+class _WineItemState extends State<WineItem> {
   var user;
   String comment;
-  String beerId;
+  String wineId;
   List comments;
   var rating;
   var yourRate;
@@ -38,7 +36,7 @@ class _BeerItemState extends State<BeerItem> {
   Widget build(BuildContext context) {
     RouteSettings settings = ModalRoute.of(context).settings;
 
-    String beerId = settings.arguments;
+    String wineId = settings.arguments;
     return Scaffold(
         resizeToAvoidBottomInset: false,
         resizeToAvoidBottomPadding: false,
@@ -50,11 +48,11 @@ class _BeerItemState extends State<BeerItem> {
           centerTitle: true,
           backgroundColor: Colors.black,
         ),
-        body: FutureBuilder<BeerDataItem>(
-            future: _getBeerItem(beerId),
+        body: FutureBuilder<WineDataItem>(
+            future: _getWineItem(wineId),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                return _drawItem(snapshot.data.beer);
+                return _drawItem(snapshot.data.wine);
               } else if (snapshot.hasError) {
                 return Text('Error');
               }
@@ -73,20 +71,20 @@ class _BeerItemState extends State<BeerItem> {
             }));
   }
 
-  Future<BeerDataItem> _getBeerItem(String _id) async {
-    const url = 'http://212.220.216.173:10501/beer/get_beer_item';
+  Future<WineDataItem> _getWineItem(String _id) async {
+    const url = 'http://212.220.216.173:10501/wine/get_wine_item';
     final response = await http.post(url, body: json.encode({'id': _id}));
 
     if (response.statusCode == 200) {
-      BeerDataItem answer =
-          BeerDataItem.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+      WineDataItem answer =
+          WineDataItem.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       return answer;
     }
     throw Exception('Error: ${response.reasonPhrase}');
   }
 
   Widget _drawItem(item) {
-    beerId = item.beerId;
+    wineId = item.wineId;
     comments = item.comments;
     rating = item.rate;
     if (user != null){
@@ -125,9 +123,9 @@ class _BeerItemState extends State<BeerItem> {
                 flex: 1,
                 child: Column(
                   children: <Widget>[
-                    Text('Плотность:\n',
+                    Text('Стиль:\n',
                         style: Theme.of(context).textTheme.headline2),
-                    Text("${item.fortress}",
+                    Text("${item.style}",
                         style: Theme.of(context).textTheme.bodyText1),
                   ],
                 ),
@@ -136,9 +134,9 @@ class _BeerItemState extends State<BeerItem> {
                 flex: 1,
                 child: Column(
                   children: <Widget>[
-                    Text('IBU:\n',
+                    Text('Вид:\n',
                         style: Theme.of(context).textTheme.headline2),
-                    Text("${item.ibu}",
+                    Text("${item.sugar}",
                         style: Theme.of(context).textTheme.bodyText1),
                   ],
                 ),
@@ -305,8 +303,8 @@ class _BeerItemState extends State<BeerItem> {
     const url = 'http://212.220.216.173:10501/api/add_comment';
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
     Map<String, dynamic> payload = {
-      'alcohol_type': 'beer',
-      '_id': '$beerId',
+      'alcohol_type': 'wine',
+      '_id': '$wineId',
       'comment': {'author': '${user['name']}', 'text': '$comment'}
     };
     final response = await http.post(url,
@@ -340,8 +338,8 @@ class _BeerItemState extends State<BeerItem> {
     const url = 'http://212.220.216.173:10501/api/update_rate';
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
     Map<String, dynamic> payload = {
-      'alcohol_type': 'beer',
-      '_id': '$beerId',
+      'alcohol_type': 'wine',
+      '_id': '$wineId',
       'rate': rate.toInt(),
       'login': user['login']
     };

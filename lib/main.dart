@@ -1,12 +1,9 @@
-// import 'package:beerblog/elems/appbar.dart';
 import 'package:beerblog/screens/auth/authScreen.dart';
 import 'package:beerblog/screens/beer/beerCard.dart';
 import 'package:beerblog/screens/beer/beerList.dart';
+import 'package:beerblog/screens/wine/wineCard.dart';
+import 'package:beerblog/screens/wine/wineList.dart';
 import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'elems/commonPadding.dart';
-// import 'elems/mainDrawer.dart';
 import 'screens/homepage/homepage.dart';
 
 void main() => runApp(MyApp());
@@ -55,8 +52,10 @@ class MyApp extends StatelessWidget {
         home: HomePage(),
         routes: {
           '/beer': (context) => BeerList(),
+          '/wine': (context) => WineList(),
           '/auth': (context) => Auth(),
-          '/beer_item': (context) => BeerItem()
+          '/beer_item': (context) => BeerItem(),
+          '/wine_item': (context) => WineItem(),
         });
   }
 }
