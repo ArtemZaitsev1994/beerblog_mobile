@@ -1,41 +1,52 @@
 import 'dart:convert';
 
+import 'package:beerblog/elems/appbar.dart';
+import 'package:beerblog/elems/mainDrawer.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'JsonModels.dart';
 
+
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        padding: const EdgeInsets.all(10),
-        child: Column(children: <Widget>[
-          Text(
-            'Просто блог, просто заметки о пиве, вине и прочем.',
-            style: Theme.of(context).textTheme.bodyText1,
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            'Ниже умная цитата, чтобы ты спивался не просто так, а развевающиеся.',
-            style: Theme.of(context).textTheme.bodyText1,
-          ),
-          SizedBox(
-            height: 40,
-          ),
-          FutureBuilder<Quote>(
-              future: _getQuota(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return _drawQuote(snapshot.data);
-                } else if (snapshot.hasError) {
-                  return Text('Чот пошло не так, Сообщи Тёме.');
-                }
-                return Center(child: CircularProgressIndicator());
-              })
-        ]));
+    return Scaffold(
+      appBar: MainAppBar(),
+      drawer: MainDrawer(),
+      body: _drawHomePageBody(context),
+    );
+  }
+
+ Widget _drawHomePageBody(BuildContext context) {
+  return SingleChildScrollView(
+      padding: const EdgeInsets.all(10),
+      child: Column(children: <Widget>[
+        Text(
+          'Просто блог, просто заметки о пиве, вине и прочем.',
+          style: Theme.of(context).textTheme.bodyText1,
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Text(
+          'Ниже умная цитата, чтобы ты спивался не просто так, а развевающиеся.',
+          style: Theme.of(context).textTheme.bodyText1,
+        ),
+        SizedBox(
+          height: 40,
+        ),
+        FutureBuilder<Quote>(
+            future: _getQuota(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return _drawQuote(snapshot.data);
+              } else if (snapshot.hasError) {
+                return Text('Чот пошло не так, Сообщи Тёме.');
+              }
+              return Center(child: CircularProgressIndicator());
+            })
+      ]));
   }
 
   Future<Quote> _getQuota() async {
@@ -50,8 +61,9 @@ class HomePage extends StatelessWidget {
     }
     // throw Exception('Error: ${response.reasonPhrase}');
     } catch (e) {
-      return Quote(quoteText: '', quoteAuthor: '');
+      // return empty quote 
     }
+    return Quote(quoteText: '', quoteAuthor: '');
   }
 
   Widget _drawQuote(Quote quote) {

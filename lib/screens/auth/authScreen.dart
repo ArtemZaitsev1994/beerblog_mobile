@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:beerblog/elems/appbar.dart';
+import 'package:beerblog/elems/mainDrawer.dart';
 import 'package:beerblog/screens/auth/authJson.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +26,10 @@ class _AuthState extends State<Auth> {
     RouteSettings settings = ModalRoute.of(context).settings;
     needPopBack = settings.arguments ?? needPopBack;
 
-    return FutureBuilder(
+    return Scaffold(
+      drawer: MainDrawer(),
+      appBar: MainAppBar(),
+      body: FutureBuilder(
         future: _checkAuth(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -37,7 +42,8 @@ class _AuthState extends State<Auth> {
             return Text('Error');
           }
           return Center(child: CircularProgressIndicator());
-        });
+        }),
+    );
   }
 
   Future _checkAuth() async {
