@@ -29,15 +29,18 @@ class _BeerListState extends State<BeerList>
   SortingBloc sorting = SortingBloc();
   bool needSort = true;
   var user;
+  String userName;
   int page = 1;
   final urlListItems = 'http://212.220.216.173:10501/beer/get_beer';
   List<String> sortItems = ["Новые", "Старые", "Лучшие", "Худшие"];
   String currentSort;
-  String serverAnswer = '';
+
+  String serverAnswerText = '';
   TextStyle serverAnswerStyle;
+  Widget serverAnswer;
+
   SharedPreferences localStorage;
   String emptyString;
-  String userName;
 
   String beerName;
   String manufacturer;
@@ -56,6 +59,7 @@ class _BeerListState extends State<BeerList>
   @override
   void initState() {
     super.initState();
+    serverAnswer = Text(serverAnswerText, style: serverAnswerStyle);
     emptyString = '';
     screenNames = [
       Tab(
@@ -311,14 +315,12 @@ class _BeerListState extends State<BeerList>
             TextField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: 'Название',
+                  hintText: 'Название**',
                   fillColor: Colors.black54,
                   focusColor: Colors.black,
                 ),
                 onChanged: (value) {
-                  setState(() {
                     beerName = value;
-                  });
                 }),
             SizedBox(height: 10),
             TextField(
@@ -329,9 +331,7 @@ class _BeerListState extends State<BeerList>
                   focusColor: Colors.black,
                 ),
                 onChanged: (value) {
-                  setState(() {
                     manufacturer = value;
-                  });
                 }),
             SizedBox(height: 10),
             Row(
@@ -341,14 +341,13 @@ class _BeerListState extends State<BeerList>
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'Алкоголь %',
+                        hintText: 'Алкоголь**, %',
                         fillColor: Colors.black54,
                         focusColor: Colors.black,
                       ),
                       onChanged: (value) {
-                        setState(() {
+                          alcohol = null;
                           alcohol = double.parse(value);
-                        });
                       }),
                 ),
                 SizedBox(width: 10),
@@ -357,14 +356,13 @@ class _BeerListState extends State<BeerList>
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'Плотность',
+                        hintText: 'Плотность**',
                         fillColor: Colors.black54,
                         focusColor: Colors.black,
                       ),
                       onChanged: (value) {
-                        setState(() {
+                          fortress = null;
                           fortress = double.parse(value);
-                        });
                       }),
                 ),
                 SizedBox(width: 10),
@@ -378,9 +376,8 @@ class _BeerListState extends State<BeerList>
                         focusColor: Colors.black,
                       ),
                       onChanged: (value) {
-                        setState(() {
+                          ibu = null;
                           ibu = double.parse(value);
-                        });
                       }),
                 ),
               ],
@@ -393,14 +390,12 @@ class _BeerListState extends State<BeerList>
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: 'Описание',
+                  hintText: 'Описание**',
                   fillColor: Colors.black54,
                   focusColor: Colors.black,
                 ),
                 onChanged: (value) {
-                  setState(() {
                     review = value;
-                  });
                 }),
             SizedBox(
               height: 10,
@@ -455,9 +450,7 @@ class _BeerListState extends State<BeerList>
                   focusColor: Colors.black,
                 ),
                 onChanged: (value) {
-                  setState(() {
                     others = value;
-                  });
                 }),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -473,7 +466,7 @@ class _BeerListState extends State<BeerList>
                 )
               ],
             ),
-            Text(serverAnswer, style: serverAnswerStyle),
+            serverAnswer,
             file == null ? Text('No Image Selected') : _drawPhoto(file),
           ],
         ),
@@ -491,14 +484,15 @@ class _BeerListState extends State<BeerList>
           icon: Icon(Icons.close, size: 30),
           onPressed: _removePhoto,
         ),
-      )
+      ),
     ]);
   }
 
   void _removePhoto() {
+    print(1);
     setState(() {
       file = null;
-      serverAnswer = '';
+      serverAnswerText = '';
     });
   }
 
@@ -551,13 +545,20 @@ class _BeerListState extends State<BeerList>
 
   void _chooseFromDevice() async {
     file = await ImagePicker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      emptyString = '';
+    });
   }
 
   void _makePhotoByCamera() async {
     file = await ImagePicker.pickImage(source: ImageSource.camera);
+    setState(() {
+      emptyString = '';
+    });
   }
 
-  void _sendAlcoholItem() async {
+  List<String> validateBeerItem() {
+    
     List<String> errors = [];
 
     if (beerName == null) {
@@ -572,14 +573,10 @@ class _BeerListState extends State<BeerList>
     if (review == null) {
       errors.add('Описание');
     }
-    if (errors.length > 0) {
-      setState(() {
-        serverAnswer = 'Не заполнены поля $errors';
-        serverAnswerStyle = TextStyle(color: Colors.red);
-      });
-      return;
-    }
+    return errors;
+  }
 
+  Future<Response> _sendBeerItem() async {
     var newBeerData = Map<String, dynamic>();
     newBeerData = {
       'name': beerName.toString(),
@@ -590,7 +587,6 @@ class _BeerListState extends State<BeerList>
       'review': review.toString(),
       'rate': rate.toInt(),
       'others': others == null ? null : others.toString(),
-      'alcohol_type': 'beer',
       'photos': file == null
           ? null
           : await MultipartFile.fromFile(file.path, filename: 'filename'),
@@ -599,7 +595,7 @@ class _BeerListState extends State<BeerList>
 
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
 
-    const url = 'http://212.220.216.173:10501/api/save_item';
+    const url = 'http://212.220.216.173:10501/beer/api/add_beer';
 
     Dio dio = Dio();
     Response response = await dio.post(
@@ -611,17 +607,37 @@ class _BeerListState extends State<BeerList>
         },
       ),
     );
+    return response;
+  }
+
+  void _sendAlcoholItem() async {
+    List<String> errors = validateBeerItem();
+    if (errors.length > 0) {
+      setState(() {
+        serverAnswerText = 'Не заполнены поля $errors';
+        serverAnswerStyle = TextStyle(color: Colors.red);
+        serverAnswer = Text(serverAnswerText, style: serverAnswerStyle);
+      });
+      return;
+    }
+
+    setState(() {
+      serverAnswer = Center(child: CircularProgressIndicator());
+    });
+    Response response = await _sendBeerItem();
 
     if (response.statusCode == 200) {
       if (response.data['success']) {
         setState(() {
-          serverAnswer = 'Пиво $beerName успешно добавлено.';
+          serverAnswerText = 'Пиво $beerName успешно добавлено.';
           serverAnswerStyle = TextStyle(color: Colors.green);
+          serverAnswer = Text(serverAnswerText, style: serverAnswerStyle);
         });
       } else {
         setState(() {
-          serverAnswer = '${response.data['message']}';
+          serverAnswerText = '${response.data['message']}';
           serverAnswerStyle = TextStyle(color: Colors.red);
+          serverAnswer = Text(serverAnswerText, style: serverAnswerStyle);
         });
       }
     }

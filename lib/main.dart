@@ -1,4 +1,6 @@
 import 'package:beerblog/screens/auth/authScreen.dart';
+import 'package:beerblog/screens/bar/barCard.dart';
+import 'package:beerblog/screens/bar/barList.dart';
 import 'package:beerblog/screens/beer/beerCard.dart';
 import 'package:beerblog/screens/beer/beerList.dart';
 import 'package:beerblog/screens/wine/wineCard.dart';
@@ -53,9 +55,11 @@ class MyApp extends StatelessWidget {
         routes: {
           '/beer': (context) => BeerList(),
           '/wine': (context) => WineList(),
+          '/bar': (context) => BarList(),
           '/auth': (context) => Auth(),
           '/beer_item': (context) => BeerItem(),
           '/wine_item': (context) => WineItem(),
+          '/bar_item': (context) => BarItem(),
         });
   }
 }
