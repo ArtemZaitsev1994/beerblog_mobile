@@ -28,6 +28,7 @@ class _BarListState extends State<BarList> with SingleTickerProviderStateMixin {
   bool needSort = true;
   var user;
   int page = 1;
+  String query = '';
   final urlListItems = 'http://212.220.216.173:10501/bar/get_bar';
   List<String> sortItems = ["Новые", "Старые", "Лучшие", "Худшие"];
   String currentSort;
@@ -253,11 +254,17 @@ class _BarListState extends State<BarList> with SingleTickerProviderStateMixin {
                             child: TextField(
                                 decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Поиск (пока не работает ):',
+                              hintText: 'Поиск по названию:',
                               fillColor: Colors.white,
                               focusColor: Colors.white,
                               filled: true,
-                            )))),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                query = value;
+                                page = 1;
+                              });
+                            },))),
                     Expanded(
                       flex: 9,
                       child: ListView.builder(
@@ -643,7 +650,7 @@ class _BarListState extends State<BarList> with SingleTickerProviderStateMixin {
     };
 
     final response = await http.post(urlListItems,
-        body: json.encode({'page': page, 'sorting': sortMap[currentSort]}));
+        body: json.encode({'query': query, 'page': page, 'sorting': sortMap[currentSort]}));
 
     if (response.statusCode == 200) {
       return response.bodyBytes;
