@@ -1,24 +1,18 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-
-  var categories = [
-    ['01: Домашная страница', '/'],
-    ['02: Пиво', '/beer'],
-    ['03: Вино', '/wine'],
-    ['04: Бары', '/bar'],
-    ['05-08: чо-нить (пока нет)', 'link'],
-    ['09: Авторизация', '/auth'],
-  ];
+var categories = [
+  ['01: Домашная страница', '/'],
+  ['02: Пиво', '/beer'],
+  ['03: Вино', '/wine'],
+  ['04: Бары', '/bar'],
+  ['05: Авторизация', '/auth'],
+];
 
 class MainDrawer extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        children: 
-          getDrawerContent(context)
-      ),
+      child: getDrawerContent(context),
     );
   }
 }
@@ -28,8 +22,7 @@ List<Widget> getMenuItems(BuildContext context) {
   String currentUrl = ModalRoute.of(context).settings.name;
 
   for (var i = 0; i <= categories.length - 1; i++) {
-    result.add(
-      ListTile(
+    result.add(ListTile(
         title: Text(categories[i][0]),
         onTap: () {
           if (currentUrl == '/') {
@@ -38,10 +31,8 @@ List<Widget> getMenuItems(BuildContext context) {
           } else {
             Navigator.pushReplacementNamed(context, categories[i][1]);
           }
-        }
-      )
-    );
-    if(i < categories.length - 1) {
+        }));
+    if (i < categories.length - 1) {
       result.add(Divider());
     }
   }
@@ -49,20 +40,45 @@ List<Widget> getMenuItems(BuildContext context) {
   return result;
 }
 
-Container getHeader() {
+Container getHeader(context) {
   return Container(
-    height: 50,
+    height: 75,
+    
+    width: MediaQuery.of(context).size.width * 0.85,
     child: DrawerHeader(
       child: Text('Навигационное меню', style: TextStyle(color: Colors.white)),
       decoration: BoxDecoration(
         color: Colors.black,
       ),
-    )
+    ),
   );
 }
 
-List getDrawerContent(BuildContext context) {
-  var result = <Widget>[getHeader()];
-  result.addAll(getMenuItems(context));
+Widget getDrawerContent(BuildContext context) {
+  Column result = Column(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: <Widget>[
+      getHeader(context),
+      Expanded(
+        child: ListView(children: getMenuItems(context)),
+      ),
+      Container(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Column(children: [
+            Divider(),
+            ListTile(
+                title: Row(children: [
+                  Text('Инструкция (для бумеров) '),
+                  Icon(Icons.info_outline)
+                ]),
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, '/info');
+                })
+          ]),
+        ),
+      )
+    ],
+  );
   return result;
 }

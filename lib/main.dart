@@ -3,6 +3,7 @@ import 'package:beerblog/screens/bar/barCard.dart';
 import 'package:beerblog/screens/bar/barList.dart';
 import 'package:beerblog/screens/beer/beerCard.dart';
 import 'package:beerblog/screens/beer/beerList.dart';
+import 'package:beerblog/screens/information/information.dart';
 import 'package:beerblog/screens/wine/wineCard.dart';
 import 'package:beerblog/screens/wine/wineList.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
           '/beer_item': (context) => BeerItem(),
           '/wine_item': (context) => WineItem(),
           '/bar_item': (context) => BarItem(),
+          '/info': (context) => Information(),
         });
   }
 }
