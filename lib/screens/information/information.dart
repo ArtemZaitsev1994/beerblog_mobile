@@ -74,7 +74,11 @@ class Information extends StatelessWidget {
         Image.asset('assets/inormation_screenshots/add_new_item.jpg', height: queryData.size.height * 0.8,),
         SizedBox(height: 10),
         Text(
-          'Здесь можно найти мой контакт, попросить меня дать тебе акк, но скорее всего я тебе его не дам))))). Причина - будет много мусора.',
+          'Здесь можно найти мой контакт, попросить меня дать тебе акк, но скорее всего я тебе его не дам))))). Причина - будет много мусора',
+          style: Theme.of(context).textTheme.bodyText1,
+        ),
+        Text(
+          'Но если ты подносил мне нольпяшечку, с самого утра, когда я умирал, то ты имеешь права требовать с меня этот жалкий акк.',
           style: Theme.of(context).textTheme.bodyText1,
         ),
         SizedBox(height: 10),

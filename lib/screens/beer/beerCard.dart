@@ -306,7 +306,7 @@ class _BeerItemState extends State<BeerItem> {
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
     Map<String, dynamic> payload = {
       'alcohol_type': 'beer',
-      '_id': '$beerId',
+      'itemId': '$beerId',
       'comment': {'author': '${user['name']}', 'text': '$comment'}
     };
     final response = await http.post(url,
@@ -341,7 +341,7 @@ class _BeerItemState extends State<BeerItem> {
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
     Map<String, dynamic> payload = {
       'alcohol_type': 'beer',
-      '_id': '$beerId',
+      'itemId': '$beerId',
       'rate': rate.toInt(),
       'login': user['login']
     };
