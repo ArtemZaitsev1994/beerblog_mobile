@@ -67,9 +67,9 @@ class MyApp extends StatelessWidget {
           '/auth': (context) => Auth(),
           '/info': (context) => Information(),
           '/admin': (context) => AdminPanelScreen(),
-          '/admin/beer': (context) => AdminItemsList(itemType: 'beer'),
-          '/admin/wine': (context) => AdminItemsList(itemType: 'wine'),
-          '/admin/bar': (context) => AdminItemsList(itemType: 'bar'),
+          '/admin/beer': (context) => AdminItemsListScreen(itemType: 'beer'),
+          '/admin/wine': (context) => AdminItemsListScreen(itemType: 'wine'),
+          '/admin/bar': (context) => AdminItemsListScreen(itemType: 'bar'),
         });
   }
 }

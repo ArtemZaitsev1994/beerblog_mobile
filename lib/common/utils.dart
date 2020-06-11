@@ -41,19 +41,19 @@ Future getCurrentUser() async {
 
 class SortingBloc {
   String _sorting;
-
-  SortingBloc() {
-    _sorting = "Новые";
-    _actionController.stream.listen(_changeSorting);
-  }
-
-  final _sortingStream = BehaviorSubject<String>.seeded("Новые");
+  BehaviorSubject<String> _sortingStream;
 
   Stream get changedSorting => _sortingStream.stream;
   Sink get _addSort => _sortingStream.sink;
 
   StreamController _actionController = StreamController();
   StreamSink get changeSorting => _actionController.sink;
+
+
+  SortingBloc() {
+    _actionController.stream.listen(_changeSorting);
+    _sortingStream = BehaviorSubject<String>.seeded("Новые");
+  }
 
   void _changeSorting(data) {
     _sorting = data;

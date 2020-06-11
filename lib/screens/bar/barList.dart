@@ -246,6 +246,7 @@ class _BarListState extends State<BarList> with SingleTickerProviderStateMixin {
                 if (snapshot.hasData) {
                   BarData barsList =
                       BarData.fromJson(json.decode(utf8.decode(snapshot.data)));
+                  print(utf8.decode(snapshot.data));
                   return Column(children: <Widget>[
                     Expanded(
                         flex: 1,

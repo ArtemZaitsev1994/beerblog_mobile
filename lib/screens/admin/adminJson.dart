@@ -1,3 +1,4 @@
+import 'package:beerblog/screens/admin/adminItemsList.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'adminJson.g.dart';
@@ -44,4 +45,16 @@ class Pagination {
 
   factory Pagination.fromJson(Map<String, dynamic> json) => _$PaginationFromJson(json);
   Map<String, dynamic> toJson() => _$PaginationToJson(this);
+}
+
+
+@JsonSerializable()
+class AdminItemsList {
+  List<Map> items;
+  Pagination pagination;
+
+  AdminItemsList(this.items, this.pagination);
+
+  factory AdminItemsList.fromJson(Map<String, dynamic> json) => _$AdminItemsListFromJson(json);
+  Map<String, dynamic> toJson() => _$AdminItemsListToJson(this);
 }

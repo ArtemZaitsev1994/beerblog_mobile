@@ -52,3 +52,18 @@ Map<String, dynamic> _$PaginationToJson(Pagination instance) =>
       'per_page': instance.perPage,
       'max': instance.max,
     };
+
+AdminItemsList _$AdminItemsListFromJson(Map<String, dynamic> json) {
+  return AdminItemsList(
+    (json['items'] as List)?.map((e) => e as Map<String, dynamic>)?.toList(),
+    json['pagination'] == null
+        ? null
+        : Pagination.fromJson(json['pagination'] as Map<String, dynamic>),
+  );
+}
+
+Map<String, dynamic> _$AdminItemsListToJson(AdminItemsList instance) =>
+    <String, dynamic>{
+      'items': instance.items,
+      'pagination': instance.pagination,
+    };

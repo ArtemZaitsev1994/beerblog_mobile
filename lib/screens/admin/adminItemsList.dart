@@ -1,26 +1,22 @@
 import 'dart:io';
 
 import 'package:beerblog/common/utils.dart';
-import 'package:beerblog/elems/appbar.dart';
-import 'package:beerblog/elems/mainDrawer.dart';
-import 'package:beerblog/screens/bar/barJson.dart';
-import 'package:dio/dio.dart';
+import 'package:beerblog/screens/admin/adminJson.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AdminItemsList extends StatefulWidget {
+class AdminItemsListScreen extends StatefulWidget {
   final String itemType;
-  const AdminItemsList({Key key, this.itemType}) : super(key: key);
+  const AdminItemsListScreen({Key key, this.itemType}) : super(key: key);
   @override
-  _AdminItemsListState createState() => _AdminItemsListState();
+  _AdminItemsListScreenState createState() => _AdminItemsListScreenState();
 }
 
-class _AdminItemsListState extends State<AdminItemsList> {
+class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
 // Общий класс для алкоголя, нужно переписать методы
 //   _sendAlcoholItem
 //   _firstScreen
@@ -31,10 +27,9 @@ class _AdminItemsListState extends State<AdminItemsList> {
   var user;
   int page = 1;
   String query = '';
-  final urlListItems = 'http://212.220.216.173:10501/bar/get_bar';
   List<String> sortItems = ["Новые", "Старые", "Лучшие", "Худшие"];
-  String currentSort = 'Новые';
-  
+  String currentSort;
+
   String serverAnswerText = '';
   TextStyle serverAnswerStyle;
   Widget serverAnswer;
@@ -57,7 +52,6 @@ class _AdminItemsListState extends State<AdminItemsList> {
     'country': 'Россия',
     'city': 'Екатеринбург',
   };
-  TabController _tabController;
 
   List<Widget> screenNames = [Text('Просмотр'), Text('Добавить новое')];
   List<Widget> screens;
@@ -65,6 +59,7 @@ class _AdminItemsListState extends State<AdminItemsList> {
   @override
   void initState() {
     super.initState();
+    sorting.changeSorting.add('Новые');
     serverAnswer = Text(serverAnswerText, style: serverAnswerStyle);
     emptyString = '';
     screenNames = [
@@ -85,12 +80,10 @@ class _AdminItemsListState extends State<AdminItemsList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _drawAppBar(),
-      body: _firstScreenFuture(),
+      body: _firstScreen(),
       resizeToAvoidBottomInset: false,
     );
   }
-
-  
 
   AppBar _drawAppBar() {
     return AppBar(
@@ -101,124 +94,115 @@ class _AdminItemsListState extends State<AdminItemsList> {
       centerTitle: true,
       backgroundColor: Colors.black,
       actions: <Widget>[
-              StreamBuilder<String>(
-                  stream: sorting.changedSorting,
-                  builder: (context, snapshot) {
-                    currentSort = snapshot.data;
-                    return DropdownButton<String>(
-                      value: currentSort,
-                      icon: Icon(Icons.arrow_downward),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.white),
-                      onChanged: (String newValue) {
-                        page = 1;
-                        sorting.changeSorting.add(newValue);
-                      },
-                      selectedItemBuilder: (BuildContext context) {
-                        return sortItems.map((String value) {
-                          return Center(
-                              child: Text(
-                            value,
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ));
-                        }).toList();
-                      },
-                      items: sortItems
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(
-                            value.toString(),
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  })
-            ],
+        DropdownButton<String>(
+          value: currentSort,
+          icon: Icon(Icons.arrow_downward),
+          iconSize: 24,
+          elevation: 16,
+          style: TextStyle(color: Colors.white),
+          onChanged: (String newValue) {
+            page = 1;
+            sorting.changeSorting.add(newValue);
+          },
+          selectedItemBuilder: (BuildContext context) {
+            return sortItems.map((String value) {
+              return Center(
+                  child: Text(
+                value,
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ));
+            }).toList();
+          },
+          items: sortItems.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(
+                value.toString(),
+                style: TextStyle(color: Colors.black),
+              ),
+            );
+          }).toList(),
+        )
+      ],
     );
-  }
-
-  Widget _firstScreenFuture() {
-    return FutureBuilder(
-        future: getCurrentUser(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            user = snapshot.data['user'];
-            return _firstScreen();
-          }
-          return Center(child: CircularProgressIndicator());
-        });
   }
 
   Widget _firstScreen() {
     return StreamBuilder<String>(
         stream: sorting.changedSorting,
         builder: (BuildContext context, snap) {
-          return FutureBuilder(
-              future: getItemsList(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  BarData barsList =
-                      BarData.fromJson(json.decode(utf8.decode(snapshot.data)));
-                  return Column(children: <Widget>[
-                    Expanded(
-                        flex: 1,
-                        child: Container(
-                            color: Colors.black,
-                            child: TextField(
+          if (snap.hasData) {
+            currentSort = snap.data;
+            return FutureBuilder(
+                future: getItemsList(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    AdminItemsList itemsList = AdminItemsList.fromJson(
+                        json.decode(utf8.decode(snapshot.data)));
+                    return Column(children: <Widget>[
+                      Expanded(
+                          flex: 1,
+                          child: Container(
+                              color: Colors.black,
+                              child: TextField(
                                 decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Поиск по названию:',
-                              fillColor: Colors.white,
-                              focusColor: Colors.white,
-                              filled: true,
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                query = value;
-                                page = 1;
-                              });
-                            },))),
-                    Expanded(
-                      flex: 9,
-                      child: ListView.builder(
-                          itemCount: barsList.bar.length,
-                          itemBuilder: (context, index) {
-                            return Card(
-                                child: InkWell(
-                              child: ListTile(
-                                  title: Text('${barsList.bar[index].name}'),
-                                  leading: Image.network(
-                                      '${barsList.bar[index].mini_avatar}'),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Icon(Icons.star, color: Colors.yellow),
-                                      Text(barsList.bar[index].rate.toString())
-                                    ],
-                                  )),
-                              onTap: () {
-                                Navigator.pushNamed(context, "/bar_item",
-                                    arguments: barsList.bar[index].barId);
-                              },
-                            ));
-                          }),
-                    ),
-                    Expanded(
-                        flex: 1,
-                        child: Container(
-                            color: Colors.black,
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: makePagination(barsList.pagination))))
-                  ]);
-                } else if (snapshot.hasError) {
-                  return Text('Error');
-                }
-                return Center(child: CircularProgressIndicator());
-              });
+                                  border: InputBorder.none,
+                                  hintText: 'Поиск по названию:',
+                                  fillColor: Colors.white,
+                                  focusColor: Colors.white,
+                                  filled: true,
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    query = value;
+                                    page = 1;
+                                  });
+                                },
+                              ))),
+                      Expanded(
+                        flex: 9,
+                        child: ListView.builder(
+                            itemCount: itemsList.items.length,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                  child: InkWell(
+                                child: ListTile(
+                                    title: Text('${itemsList.items[index]['name']}'),
+                                    leading: Image.network(
+                                        '${itemsList.items[index]['mini_avatar']}'),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Icon(Icons.star, color: Colors.yellow),
+                                        Text(
+                                            itemsList.items[index]['rate'].toString())
+                                      ],
+                                    )),
+                                onTap: () {
+                                  Navigator.pushNamed(context, "/${widget.itemType}_item",
+                                      arguments: itemsList.items[index]['_id']);
+                                },
+                              ));
+                            }),
+                      ),
+                      Expanded(
+                          flex: 1,
+                          child: Container(
+                              color: Colors.black,
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children:
+                                      makePagination(itemsList.pagination))))
+                    ]);
+                  } else if (snapshot.hasError) {
+                    return Text('Error');
+                  }
+                  return Center(child: CircularProgressIndicator());
+                });
+          } else if (snap.hasError) {
+            return Text('Error');
+          }
+          return Center(child: CircularProgressIndicator());
         });
   }
 
@@ -229,16 +213,16 @@ class _AdminItemsListState extends State<AdminItemsList> {
       "Худшие": "rate_asc",
       "Лучшие": "rate_desc",
     };
-    print(page);
-    print(sortMap[currentSort]);
-    print(query);
-    final response = await http.post(urlListItems,
-        body: json.encode({'query': query, 'page': page, 'sorting': sortMap[currentSort]}));
+    String _url = 'http://212.220.216.173:10501/${widget.itemType}/get_${widget.itemType}';
+    final response = await http.post(
+        _url,
+        body: json.encode(
+            {'query': query, 'page': page, 'sorting': sortMap[currentSort]}));
 
     if (response.statusCode == 200) {
       return response.bodyBytes;
     }
-    throw Exception('Error: ${response.reasonPhrase}');
+    // throw Exception('Error: ${response.reasonPhrase}');
   }
 
   List<Widget> makePagination(Pagination pagination) {
