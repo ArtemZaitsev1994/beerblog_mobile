@@ -1,3 +1,4 @@
+import 'package:beerblog/common/utils.dart';
 import 'package:flutter/material.dart';
 
 var categories = [
@@ -15,6 +16,30 @@ class MainDrawer extends StatelessWidget {
       child: getDrawerContent(context),
     );
   }
+}
+
+Widget _adminButton() {
+  return FutureBuilder(
+      future: getCurrentUser(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data['user'] == null || snapshot.data['user']['login'] != 'admin') {
+            return SizedBox.shrink();
+          } else {
+          return Column(
+            children: [
+            Divider(),
+            ListTile(
+            title: Text('06: Админка'),
+            onTap: () {
+                Navigator.pushReplacementNamed(context, '/admin');
+            })]);
+          }
+        } else if (snapshot.hasError) {
+          return Text('Error');
+        }
+        return Center(child: CircularProgressIndicator());
+      });
 }
 
 List<Widget> getMenuItems(BuildContext context) {
@@ -36,6 +61,8 @@ List<Widget> getMenuItems(BuildContext context) {
       result.add(Divider());
     }
   }
+  
+  result.add(_adminButton());
 
   return result;
 }
@@ -82,3 +109,5 @@ Widget getDrawerContent(BuildContext context) {
   );
   return result;
 }
+
+

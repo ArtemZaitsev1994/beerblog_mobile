@@ -1,3 +1,5 @@
+import 'package:beerblog/screens/admin/admin.dart';
+import 'package:beerblog/screens/admin/adminItemsList.dart';
 import 'package:beerblog/screens/auth/authScreen.dart';
 import 'package:beerblog/screens/bar/barCard.dart';
 import 'package:beerblog/screens/bar/barList.dart';
@@ -57,11 +59,17 @@ class MyApp extends StatelessWidget {
           '/beer': (context) => BeerList(),
           '/wine': (context) => WineList(),
           '/bar': (context) => BarList(),
-          '/auth': (context) => Auth(),
+
           '/beer_item': (context) => BeerItem(),
           '/wine_item': (context) => WineItem(),
           '/bar_item': (context) => BarItem(),
+
+          '/auth': (context) => Auth(),
           '/info': (context) => Information(),
+          '/admin': (context) => AdminPanelScreen(),
+          '/admin/beer': (context) => AdminItemsList(itemType: 'beer'),
+          '/admin/wine': (context) => AdminItemsList(itemType: 'wine'),
+          '/admin/bar': (context) => AdminItemsList(itemType: 'bar'),
         });
   }
 }
