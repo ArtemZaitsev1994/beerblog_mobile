@@ -24,12 +24,14 @@ Item _$ItemFromJson(Map<String, dynamic> json) {
   return Item(
     itemType: json['itemType'] as String,
     notConfirmed: json['notConfirmed'] as int,
+    total: json['total'] as int,
   );
 }
 
 Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'itemType': instance.itemType,
       'notConfirmed': instance.notConfirmed,
+      'total': instance.total,
     };
 
 Pagination _$PaginationFromJson(Map<String, dynamic> json) {

@@ -65,3 +65,30 @@ class SortingBloc {
     _actionController.close();
   }
 }
+
+class SortingConfirmedBloc {
+  String _sorting;
+  BehaviorSubject<String> _sortingStream;
+
+  Stream get changedSorting => _sortingStream.stream;
+  Sink get _addSort => _sortingStream.sink;
+
+  StreamController _actionController = StreamController();
+  StreamSink get changeSorting => _actionController.sink;
+
+
+  SortingConfirmedBloc() {
+    _actionController.stream.listen(_changeSorting);
+    _sortingStream = BehaviorSubject<String>.seeded("Подтвержденные");
+  }
+
+  void _changeSorting(data) {
+    _sorting = data;
+    _addSort.add(_sorting);
+  }
+
+  void dispose() {
+    _sortingStream.close();
+    _actionController.close();
+  }
+}

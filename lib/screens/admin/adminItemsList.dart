@@ -22,13 +22,18 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
 //   _firstScreen
 //   _secondScreen
 //   _drawNewAlcoholItemForm
-  SortingBloc sorting = SortingBloc();
   bool needSort = true;
   var user;
   int page = 1;
   String query = '';
+  final queryController = TextEditingController();
+
+  SortingBloc sorting = SortingBloc();
   List<String> sortItems = ["Новые", "Старые", "Лучшие", "Худшие"];
   String currentSort;
+  SortingConfirmedBloc sortingConfStream = SortingConfirmedBloc();
+  List<String> confSortingFields = ["Подтвержденные", "Новые", "Все"];
+  String confSorting;
 
   String serverAnswerText = '';
   TextStyle serverAnswerStyle;
@@ -59,7 +64,6 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
   @override
   void initState() {
     super.initState();
-    sorting.changeSorting.add('Новые');
     serverAnswer = Text(serverAnswerText, style: serverAnswerStyle);
     emptyString = '';
     screenNames = [
@@ -80,7 +84,7 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _drawAppBar(),
-      body: _firstScreen(),
+      body: screen(),
       resizeToAvoidBottomInset: false,
     );
   }
@@ -94,114 +98,228 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
       centerTitle: true,
       backgroundColor: Colors.black,
       actions: <Widget>[
-        DropdownButton<String>(
-          value: currentSort,
-          icon: Icon(Icons.arrow_downward),
-          iconSize: 24,
-          elevation: 16,
-          style: TextStyle(color: Colors.white),
-          onChanged: (String newValue) {
-            page = 1;
-            sorting.changeSorting.add(newValue);
-          },
-          selectedItemBuilder: (BuildContext context) {
-            return sortItems.map((String value) {
-              return Center(
-                  child: Text(
-                value,
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ));
-            }).toList();
-          },
-          items: sortItems.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(
-                value.toString(),
-                style: TextStyle(color: Colors.black),
-              ),
-            );
-          }).toList(),
-        )
+        IconButton(icon: Icon(Icons.settings), onPressed: _showDialog)
       ],
     );
   }
 
-  Widget _firstScreen() {
+  void _showDialog() {
+    String newSorting = currentSort;
+    String newConfSorting = confSorting;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: Text("Сортировка"),
+            content: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  DropdownButton<String>(
+                    value: newSorting,
+                    icon: Icon(Icons.arrow_downward),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: TextStyle(color: Colors.white),
+                    onChanged: (String newValue) {
+                      setState(() {
+                        newSorting = newValue;
+                      });
+                    },
+                    selectedItemBuilder: (BuildContext context) {
+                      return sortItems.map((String value) {
+                        return Center(
+                            child: Text(
+                          value,
+                          style: TextStyle(color: Colors.black, fontSize: 18),
+                        ));
+                      }).toList();
+                    },
+                    items:
+                        sortItems.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value.toString(),
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  DropdownButton<String>(
+                    value: newConfSorting,
+                    icon: Icon(Icons.arrow_downward),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: TextStyle(color: Colors.white),
+                    onChanged: (String newValue) {
+                      setState(() {
+                        newConfSorting = newValue;
+                      });
+                    },
+                    selectedItemBuilder: (BuildContext context) {
+                      return confSortingFields.map((String value) {
+                        return Center(
+                            child: Text(
+                          value,
+                          style: TextStyle(color: Colors.black, fontSize: 18),
+                        ));
+                      }).toList();
+                    },
+                    items: confSortingFields
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value.toString(),
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              // usually buttons at the bottom of the dialog
+              FlatButton(
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: Colors.black),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  if ((newConfSorting != null &&
+                          newConfSorting != confSorting) &&
+                      (newSorting != null && newSorting != currentSort)) {
+                    setState(() {
+                      page = 1;
+                      sorting.changeSorting.add(newSorting);
+                      sortingConfStream.changeSorting.add(newConfSorting);
+                    });
+                  } else if (newConfSorting != null &&
+                      newConfSorting != confSorting) {
+                    setState(() {
+                      page = 1;
+                      sortingConfStream.changeSorting.add(newConfSorting);
+                    });
+                  } else if (newSorting != null && newSorting != currentSort) {
+                    setState(() {
+                      page = 1;
+                      sorting.changeSorting.add(newSorting);
+                    });
+                  }
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
+  Widget screen() {
     return StreamBuilder<String>(
         stream: sorting.changedSorting,
         builder: (BuildContext context, snap) {
           if (snap.hasData) {
             currentSort = snap.data;
-            return FutureBuilder(
-                future: getItemsList(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    // AdminItemsList itemsList = AdminItemsList.fromJson(
-                    //     json.decode(utf8.decode(snapshot.data)));
-                    var items = json.decode(utf8.decode(snapshot.data))[widget.itemType];
-                    var p = Pagination.fromJson(json.decode(utf8.decode(snapshot.data))['pagination']);
-                    AdminItemsList itemsList = AdminItemsList(items, p);
-                    return Column(children: <Widget>[
-                      Expanded(
-                          flex: 1,
-                          child: Container(
-                              color: Colors.black,
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Поиск по названию:',
-                                  fillColor: Colors.white,
-                                  focusColor: Colors.white,
-                                  filled: true,
-                                ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    query = value;
-                                    page = 1;
-                                  });
-                                },
-                              ))),
-                      Expanded(
-                        flex: 9,
-                        child: ListView.builder(
-                            itemCount: itemsList.items.length,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                  child: InkWell(
-                                child: ListTile(
-                                    title: Text('${itemsList.items[index]['name']}'),
-                                    leading: Image.network(
-                                        '${itemsList.items[index]['mini_avatar']}'),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        Icon(Icons.star, color: Colors.yellow),
-                                        Text(
-                                            itemsList.items[index]['rate'].toString())
-                                      ],
-                                    )),
-                                onTap: () {
-                                  Navigator.pushNamed(context, "/admin/item_card",
-                                      arguments: {
-                                        'id': itemsList.items[index]['_id'],
-                                        'itemType': widget.itemType,
-                                      }
-                                    );
-                                },
-                              ));
-                            }),
-                      ),
-                      Expanded(
-                          flex: 1,
-                          child: Container(
-                              color: Colors.black,
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children:
-                                      makePagination(itemsList.pagination))))
-                    ]);
-                  } else if (snapshot.hasError) {
+
+            return StreamBuilder<String>(
+                stream: sortingConfStream.changedSorting,
+                builder: (BuildContext context, snap2) {
+                  if (snap2.hasData) {
+                    confSorting = snap2.data;
+                    return FutureBuilder(
+                        future: getItemsList(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            // AdminItemsList itemsList = AdminItemsList.fromJson(
+                            //     json.decode(utf8.decode(snapshot.data)));
+                            var items = json.decode(
+                                utf8.decode(snapshot.data))[widget.itemType];
+                            var p = Pagination.fromJson(json.decode(
+                                utf8.decode(snapshot.data))['pagination']);
+                            AdminItemsList itemsList = AdminItemsList(items, p);
+                            return Column(children: <Widget>[
+                              Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                      color: Colors.black,
+                                      child: TextField(
+                                        controller: queryController,
+                                        decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          hintText: 'Поиск по названию:',
+                                          fillColor: Colors.white,
+                                          focusColor: Colors.white,
+                                          filled: true,
+                                        ),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            query = value;
+                                            page = 1;
+                                          });
+                                        },
+                                      ))),
+                              Expanded(
+                                flex: 9,
+                                child: ListView.builder(
+                                    itemCount: itemsList.items.length,
+                                    itemBuilder: (context, index) {
+                                      return Card(
+                                          child: InkWell(
+                                        child: ListTile(
+                                            title: Text(
+                                                '${itemsList.items[index]['name']}'),
+                                            leading: Image.network(
+                                                '${itemsList.items[index]['mini_avatar']}'),
+                                            trailing: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: <Widget>[
+                                                Icon(Icons.star,
+                                                    color: Colors.yellow),
+                                                Text(itemsList.items[index]
+                                                        ['rate']
+                                                    .toString())
+                                              ],
+                                            )),
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                              context, "/admin/item_card",
+                                              arguments: {
+                                                'id': itemsList.items[index]
+                                                    ['_id'],
+                                                'itemType': widget.itemType,
+                                              }).then((_user) {
+                                            setState(() {
+                                              queryController.text = '';
+                                              query = '';
+                                            });
+                                          });
+                                        },
+                                      ));
+                                    }),
+                              ),
+                              Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                      color: Colors.black,
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: makePagination(
+                                              itemsList.pagination))))
+                            ]);
+                          } else if (snapshot.hasError) {
+                            return Text('Error');
+                          }
+                          return Center(child: CircularProgressIndicator());
+                        });
+                  } else if (snap2.hasError) {
                     return Text('Error');
                   }
                   return Center(child: CircularProgressIndicator());
@@ -214,18 +332,27 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
   }
 
   getItemsList() async {
-    var sortMap = {
+    Map<String, String> sortMap = {
       "Новые": "time_desc",
       "Старые": "time_asc",
       "Худшие": "rate_asc",
       "Лучшие": "rate_desc",
     };
-    String _url = 'http://212.220.216.173:10501/${widget.itemType}/get_${widget.itemType}';
-    print(_url);
-    final response = await http.post(
-        _url,
-        body: json.encode(
-            {'query': query, 'page': page, 'sorting': sortMap[currentSort]}));
+    Map<String, dynamic> confSortMap = {
+      "Новые": true,
+      "Подтвержденные": false,
+      "Все": null,
+    };
+    String _url =
+        'http://212.220.216.173:10501/${widget.itemType}/get_${widget.itemType}';
+    // String _url = 'http://212.220.216.173:10501/admin/${widget.itemType}';
+    final response = await http.post(_url,
+        body: json.encode({
+          'query': query,
+          'page': page,
+          'sorting': sortMap[currentSort],
+          'notConfirmed': confSortMap[confSorting],
+        }));
 
     if (response.statusCode == 200) {
       return response.bodyBytes;

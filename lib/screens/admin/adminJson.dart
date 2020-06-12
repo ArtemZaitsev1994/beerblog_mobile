@@ -18,9 +18,10 @@ class AdminPanel {
 class Item {
   final String itemType;
   final int notConfirmed;
+  final int total;
 
   Item({
-    this.itemType, this.notConfirmed
+    this.itemType, this.notConfirmed, this.total
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);

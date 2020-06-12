@@ -34,9 +34,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
               //     AdminPanel.fromJson(json.decode(utf8.decode(snapshot.data)));
               AdminPanel typesList =
                   AdminPanel(items: [
-                    Item(itemType: 'beer', notConfirmed: 2),
-                    Item(itemType: 'wine', notConfirmed: 0),
-                    Item(itemType: 'bar', notConfirmed: 2)
+                    Item(itemType: 'beer', notConfirmed: 2, total: 4),
+                    Item(itemType: 'wine', notConfirmed: 0, total: 4),
+                    Item(itemType: 'bar', notConfirmed: 2, total: 10)
                   ]);
               
               return Column(children: <Widget>[
@@ -53,6 +53,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
+                                  Text('всего: ${typesList.items[index].total}'),
                                   Icon(
                                     Icons.publish,
                                     color: 
