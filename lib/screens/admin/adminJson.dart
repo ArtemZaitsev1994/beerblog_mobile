@@ -50,7 +50,7 @@ class Pagination {
 
 @JsonSerializable()
 class AdminItemsList {
-  List<Map> items;
+  List<dynamic> items;
   Pagination pagination;
 
   AdminItemsList(this.items, this.pagination);

@@ -137,8 +137,11 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
                 future: getItemsList(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    AdminItemsList itemsList = AdminItemsList.fromJson(
-                        json.decode(utf8.decode(snapshot.data)));
+                    // AdminItemsList itemsList = AdminItemsList.fromJson(
+                    //     json.decode(utf8.decode(snapshot.data)));
+                    var items = json.decode(utf8.decode(snapshot.data))[widget.itemType];
+                    var p = Pagination.fromJson(json.decode(utf8.decode(snapshot.data))['pagination']);
+                    AdminItemsList itemsList = AdminItemsList(items, p);
                     return Column(children: <Widget>[
                       Expanded(
                           flex: 1,
@@ -179,8 +182,12 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
                                       ],
                                     )),
                                 onTap: () {
-                                  Navigator.pushNamed(context, "/${widget.itemType}_item",
-                                      arguments: itemsList.items[index]['_id']);
+                                  Navigator.pushNamed(context, "/admin/item_card",
+                                      arguments: {
+                                        'id': itemsList.items[index]['_id'],
+                                        'itemType': widget.itemType,
+                                      }
+                                    );
                                 },
                               ));
                             }),
@@ -214,6 +221,7 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
       "Лучшие": "rate_desc",
     };
     String _url = 'http://212.220.216.173:10501/${widget.itemType}/get_${widget.itemType}';
+    print(_url);
     final response = await http.post(
         _url,
         body: json.encode(

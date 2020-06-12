@@ -55,7 +55,7 @@ Map<String, dynamic> _$PaginationToJson(Pagination instance) =>
 
 AdminItemsList _$AdminItemsListFromJson(Map<String, dynamic> json) {
   return AdminItemsList(
-    (json['items'] as List)?.map((e) => e as Map<String, dynamic>)?.toList(),
+    json['items'] as List,
     json['pagination'] == null
         ? null
         : Pagination.fromJson(json['pagination'] as Map<String, dynamic>),
