@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:beerblog/common/constants.dart';
 import 'package:beerblog/common/jsonModels.dart';
 import 'package:beerblog/elems/comments.dart';
 import 'package:beerblog/elems/mainDrawer.dart';
@@ -74,7 +75,7 @@ class _BeerItemState extends State<BeerItem> {
   }
 
   Future<BeerDataItem> _getBeerItem(String _id) async {
-    const url = 'http://212.220.216.173:10501/beer/get_beer_item';
+    const url = '$serverAPI/beer/get_beer_item';
     final response = await http.post(url, body: json.encode({'id': _id}));
 
     if (response.statusCode == 200) {
@@ -138,7 +139,7 @@ class _BeerItemState extends State<BeerItem> {
                   children: <Widget>[
                     Text('IBU:\n',
                         style: Theme.of(context).textTheme.headline2),
-                    Text("${item.ibu}",
+                    Text("${item.ibu != -1 ? item.ibu : ''}",
                         style: Theme.of(context).textTheme.bodyText1),
                   ],
                 ),
@@ -302,7 +303,7 @@ class _BeerItemState extends State<BeerItem> {
   }
 
   void _sendComment() async {
-    const url = 'http://212.220.216.173:10501/api/add_comment';
+    const url = '$serverAPI/api/add_comment';
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
     Map<String, dynamic> payload = {
       'alcohol_type': 'beer',
@@ -337,7 +338,7 @@ class _BeerItemState extends State<BeerItem> {
   }
 
   void sendNewRating(rate) async {
-    const url = 'http://212.220.216.173:10501/api/update_rate';
+    const url = '$serverAPI/api/update_rate';
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
     Map<String, dynamic> payload = {
       'alcohol_type': 'beer',

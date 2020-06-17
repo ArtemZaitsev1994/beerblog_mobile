@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:beerblog/common/constants.dart';
 import 'package:beerblog/elems/appbar.dart';
 import 'package:beerblog/elems/mainDrawer.dart';
 import 'package:beerblog/screens/auth/authJson.dart';
@@ -173,7 +174,7 @@ class _AuthState extends State<Auth> {
   }
 
   void _auth() async {
-    final String authServerLink = 'http://212.220.216.173:10503/login';
+    final String authServerLink = '$serverAuth/login';
     var data = {
       'login': login,
       'password': password,
@@ -188,7 +189,6 @@ class _AuthState extends State<Auth> {
           AuthData.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       if (authData.success) {
         await LocalStorage.setStr('jwtToken', authData.token);
-
         String userData =
             '${authData.user.login}|${authData.user.name}|${authData.user.sername}';
         await LocalStorage.setStr('user', userData);

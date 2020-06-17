@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:beerblog/common/constants.dart';
 import 'package:beerblog/elems/appbar.dart';
 import 'package:beerblog/elems/mainDrawer.dart';
 import 'package:flutter/gestures.dart';
@@ -47,25 +48,20 @@ class _HomePageState extends State<HomePage> {
       future: compareVersions(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          if (snapshot.data['success']) {
-            if (snapshot.data['version']['isValid']) {
-              return _drawVersionRow(snapshot.data['version'], context);
+            if (snapshot.data['isValid']) {
+              return _drawVersionRow(snapshot.data, context);
             } else {
-              setState(() {
                 validVersion = false;
-              });
+                return Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Text(
+                      'v.$version',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ));
             }
-          } else {
-            return Padding(
-              padding: const EdgeInsets.all(10),
-              child: Text(
-                'v.$version',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 12,
-                ),
-              ));
-          }
         } else if (snapshot.hasError) {
           return Padding(
               padding: const EdgeInsets.all(10),
@@ -124,7 +120,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future compareVersions() async {
-    final _url = 'http://212.220.216.173:10501/compare_version';
+    final _url = '$serverAPI/compare_version';
 
     try {
       final response =

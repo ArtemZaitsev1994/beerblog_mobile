@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:beerblog/common/constants.dart';
 import 'package:beerblog/common/utils.dart';
 import 'package:beerblog/elems/mainDrawer.dart';
 import 'package:beerblog/screens/bar/barJson.dart';
@@ -29,7 +30,7 @@ class _BarListState extends State<BarList> with SingleTickerProviderStateMixin {
   var user;
   int page = 1;
   String query = '';
-  final urlListItems = 'http://212.220.216.173:10501/bar/get_bar';
+  final urlListItems = '$serverAPI/bar/get_bar';
   List<String> sortItems = ["Новые", "Старые", "Лучшие", "Худшие"];
   String currentSort;
   
@@ -594,7 +595,7 @@ class _BarListState extends State<BarList> with SingleTickerProviderStateMixin {
 
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
 
-    const url = 'http://212.220.216.173:10501/bar/api/add_bar';
+    const url = '$serverAPI/bar/api/add_bar';
 
     Dio dio = Dio();
     Response response = await dio.post(

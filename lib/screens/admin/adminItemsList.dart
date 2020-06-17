@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:beerblog/common/constants.dart';
 import 'package:beerblog/common/utils.dart';
 import 'package:beerblog/screens/admin/adminJson.dart';
 import 'package:flutter/cupertino.dart';
@@ -237,13 +238,8 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
                         future: getItemsList(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            // AdminItemsList itemsList = AdminItemsList.fromJson(
-                            //     json.decode(utf8.decode(snapshot.data)));
-                            var items = json.decode(
-                                utf8.decode(snapshot.data))[widget.itemType];
-                            var p = Pagination.fromJson(json.decode(
-                                utf8.decode(snapshot.data))['pagination']);
-                            AdminItemsList itemsList = AdminItemsList(items, p);
+                            AdminItemsList itemsList = AdminItemsList.fromJson(
+                                json.decode(utf8.decode(snapshot.data)));
                             return Column(children: <Widget>[
                               Expanded(
                                   flex: 1,
@@ -343,10 +339,10 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
       "Подтвержденные": false,
       "Все": null,
     };
-    String _url =
-        'http://212.220.216.173:10501/${widget.itemType}/get_${widget.itemType}';
-    // String _url = 'http://212.220.216.173:10501/admin/${widget.itemType}';
+    String _url = '$serverAPI/admin/${widget.itemType}';
+    String token = (await LocalStorage.getStr('jwtToken') ?? '');
     final response = await http.post(_url,
+        headers: {'Authorization': '$token'},
         body: json.encode({
           'query': query,
           'page': page,
@@ -357,7 +353,7 @@ class _AdminItemsListScreenState extends State<AdminItemsListScreen> {
     if (response.statusCode == 200) {
       return response.bodyBytes;
     }
-    // throw Exception('Error: ${response.reasonPhrase}');
+    throw Exception('Error: ${response.reasonPhrase}');
   }
 
   List<Widget> makePagination(Pagination pagination) {

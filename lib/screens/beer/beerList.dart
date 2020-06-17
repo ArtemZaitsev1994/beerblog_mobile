@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:beerblog/common/constants.dart';
 import 'package:beerblog/common/utils.dart';
 import 'package:beerblog/elems/mainDrawer.dart';
 import 'package:beerblog/screens/beer/beerJson.dart';
@@ -32,7 +33,7 @@ class _BeerListState extends State<BeerList>
   String userName;
   int page = 1;
   String query = '';
-  final urlListItems = 'http://212.220.216.173:10501/beer/get_beer';
+  final urlListItems = '$serverAPI/beer/get_beer';
   List<String> sortItems = ["Новые", "Старые", "Лучшие", "Худшие"];
   String currentSort;
 
@@ -604,7 +605,7 @@ class _BeerListState extends State<BeerList>
 
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
 
-    const url = 'http://212.220.216.173:10501/beer/api/add_beer';
+    const url = '$serverAPI/beer/api/add_beer';
 
     Dio dio = Dio();
     Response response = await dio.post(

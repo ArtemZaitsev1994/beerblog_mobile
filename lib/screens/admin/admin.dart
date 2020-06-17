@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:beerblog/common/constants.dart';
+import 'package:beerblog/common/utils.dart';
 import 'package:beerblog/elems/appbar.dart';
 import 'package:beerblog/elems/mainDrawer.dart';
 import 'package:beerblog/screens/admin/adminJson.dart';
@@ -30,14 +32,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           future: _getItemsTypesList(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              // AdminPanel typesList =
-              //     AdminPanel.fromJson(json.decode(utf8.decode(snapshot.data)));
               AdminPanel typesList =
-                  AdminPanel(items: [
-                    Item(itemType: 'beer', notConfirmed: 2, total: 4),
-                    Item(itemType: 'wine', notConfirmed: 0, total: 4),
-                    Item(itemType: 'bar', notConfirmed: 2, total: 10)
-                  ]);
+                  AdminPanel.fromJson(json.decode(utf8.decode(snapshot.data)));
               
               return Column(children: <Widget>[
                 Expanded(
@@ -48,8 +44,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                             child: InkWell(
                           child: ListTile(
                               title: Text('${typesList.items[index].itemType}'),
-                              // leading: Image.network(
-                              //     '${barsList.bar[index].mini_avatar}'),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
@@ -79,10 +73,12 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     }
   
   Future _getItemsTypesList() async {
-    String _url = 'http://212.220.216.173:10501/admin/admin_panel_list';
+    String _url = '$serverAPI/admin/admin_panel_list';
+    String token = (await LocalStorage.getStr('jwtToken') ?? '');
 
-    final response = await http.post(_url);
-    return response.bodyBytes;
+    final response = await http.post(_url,
+        headers: {'Authorization': '$token'});
+
     if (response.statusCode == 200) {
       return response.bodyBytes;
     }

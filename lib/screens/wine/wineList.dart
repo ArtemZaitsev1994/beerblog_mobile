@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:beerblog/common/constants.dart';
 import 'package:beerblog/common/utils.dart';
 import 'package:beerblog/elems/mainDrawer.dart';
 import 'package:beerblog/screens/wine/wineJson.dart';
@@ -11,7 +12,6 @@ import 'dart:convert';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class WineList extends StatefulWidget {
   const WineList({Key key}) : super(key: key);
@@ -31,10 +31,10 @@ class _WineListState extends State<WineList>
   var user;
   int page = 1;
   String query = '';
-  final urlListItems = 'http://212.220.216.173:10501/wine/get_wine';
+  final urlListItems = '$serverAPI/wine/get_wine';
   List<String> sortItems = ["Новые", "Старые", "Лучшие", "Худшие"];
   String currentSort;
-  
+
   String serverAnswerText = '';
   TextStyle serverAnswerStyle;
   Widget serverAnswer;
@@ -57,8 +57,21 @@ class _WineListState extends State<WineList>
   List<Widget> screenNames = [Text('Просмотр'), Text('Добавить новое')];
   List<Widget> screens;
 
-  static List<String> styles = ['Белое', 'Красное', 'Розовое', 'Игристое', 'Фруктовое', 'Другое'];
-  static List<String> sugarStyles = ['Сладкое', 'Полусладкое', 'Полусухое', 'Сухое', 'Другое'];
+  static List<String> styles = [
+    'Белое',
+    'Красное',
+    'Розовое',
+    'Игристое',
+    'Фруктовое',
+    'Другое'
+  ];
+  static List<String> sugarStyles = [
+    'Сладкое',
+    'Полусладкое',
+    'Полусухое',
+    'Сухое',
+    'Другое'
+  ];
   String style;
   String sugar;
 
@@ -246,27 +259,28 @@ class _WineListState extends State<WineList>
               future: getAlcoholList(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  WineData wineList = WineData.fromJson(json.decode(utf8.decode(snapshot.data)));
+                  WineData wineList = WineData.fromJson(
+                      json.decode(utf8.decode(snapshot.data)));
                   return Column(children: <Widget>[
                     Expanded(
                         flex: 1,
                         child: Container(
                             color: Colors.black,
                             child: TextField(
-                                decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Поиск по названию:',
-                              fillColor: Colors.white,
-                              focusColor: Colors.white,
-                              filled: true,
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                query = value;
-                                page = 1;
-                              });
-                            },
-                          ))),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Поиск по названию:',
+                                fillColor: Colors.white,
+                                focusColor: Colors.white,
+                                filled: true,
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  query = value;
+                                  page = 1;
+                                });
+                              },
+                            ))),
                     Expanded(
                       flex: 9,
                       child: ListView.builder(
@@ -275,22 +289,19 @@ class _WineListState extends State<WineList>
                             return Card(
                                 child: InkWell(
                               child: ListTile(
-                                  title:
-                                      Text('${wineList.wine[index].name}'),
+                                  title: Text('${wineList.wine[index].name}'),
                                   leading: Image.network(
                                       '${wineList.wine[index].mini_avatar}'),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
                                       Icon(Icons.star, color: Colors.yellow),
-                                      Text(wineList.wine[index].rate
-                                          .toString())
+                                      Text(wineList.wine[index].rate.toString())
                                     ],
                                   )),
                               onTap: () {
                                 Navigator.pushNamed(context, "/wine_item",
-                                    arguments:
-                                        wineList.wine[index].wineId);
+                                    arguments: wineList.wine[index].wineId);
                               },
                             ));
                           }),
@@ -301,8 +312,7 @@ class _WineListState extends State<WineList>
                             color: Colors.black,
                             child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children:
-                                    makePagination(wineList.pagination))))
+                                children: makePagination(wineList.pagination))))
                   ]);
                 } else if (snapshot.hasError) {
                   return Text('Error');
@@ -333,7 +343,7 @@ class _WineListState extends State<WineList>
                   focusColor: Colors.black,
                 ),
                 onChanged: (value) {
-                    wineName = value;
+                  wineName = value;
                 }),
             SizedBox(height: 10),
             TextField(
@@ -352,9 +362,9 @@ class _WineListState extends State<WineList>
             Row(
               children: <Widget>[
                 Expanded(
-                  child: Container(
-                    height: 60,
-                    child: TextField(
+                    child: Container(
+                  height: 60,
+                  child: TextField(
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
@@ -363,81 +373,82 @@ class _WineListState extends State<WineList>
                         focusColor: Colors.black,
                       ),
                       onChanged: (value) {
-                          alcohol = null;
-                          alcohol = double.parse(value);
+                        alcohol = null;
+                        alcohol = double.parse(value);
                       }),
                 )),
                 SizedBox(width: 10),
                 Expanded(
-                  child: Container(
-                    height: 60,
-                    padding: EdgeInsets.symmetric(horizontal: 10.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3.0),
-                      border: Border.all(
-                          color: Colors.black54, style: BorderStyle.solid, width: 0.80),
-                    ),
-                    child: DropdownButton<String>(
-                      value: style,
-                      hint: Text('Стиль**'),
-                      underline: SizedBox(),
-                      icon: Icon(Icons.keyboard_arrow_down),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.white),
-                      onChanged: (String newValue) {
-                        setState(() {
-                          style = newValue;
-                        });
-                      },
-                      items: styles
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
+                    child: Container(
+                  height: 60,
+                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3.0),
+                    border: Border.all(
+                        color: Colors.black54,
+                        style: BorderStyle.solid,
+                        width: 0.80),
+                  ),
+                  child: DropdownButton<String>(
+                    value: style,
+                    hint: Text('Стиль**'),
+                    underline: SizedBox(),
+                    icon: Icon(Icons.keyboard_arrow_down),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: TextStyle(color: Colors.white),
+                    onChanged: (String newValue) {
+                      setState(() {
+                        style = newValue;
+                      });
+                    },
+                    items: styles.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
                           value: value,
                           child: SizedBox(
                             width: MediaQuery.of(context).size.width * 0.19,
                             child: Text(value.toString(),
                                 style: TextStyle(color: Colors.black)),
-                          )
-                        );
-                      }).toList(),
-                    ),
+                          ));
+                    }).toList(),
+                  ),
                 )),
                 SizedBox(width: 10),
                 Expanded(
-                  child: Container(
-                    height: 60,
-                    padding: EdgeInsets.symmetric(horizontal: 10.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3.0),
-                      border: Border.all(
-                          color: Colors.black54, style: BorderStyle.solid, width: 0.80),
-                    ),
-                    child: DropdownButton<String>(
-                      value: sugar,
-                      hint: Text('Вид'),
-                      underline: SizedBox(),
-                      icon: Icon(Icons.keyboard_arrow_down),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.white),
-                      onChanged: (String newValue) {
-                        setState(() {
-                          sugar = newValue;
-                        });
-                      },
-                      items: sugarStyles
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
+                    child: Container(
+                  height: 60,
+                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3.0),
+                    border: Border.all(
+                        color: Colors.black54,
+                        style: BorderStyle.solid,
+                        width: 0.80),
+                  ),
+                  child: DropdownButton<String>(
+                    value: sugar,
+                    hint: Text('Вид'),
+                    underline: SizedBox(),
+                    icon: Icon(Icons.keyboard_arrow_down),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: TextStyle(color: Colors.white),
+                    onChanged: (String newValue) {
+                      setState(() {
+                        sugar = newValue;
+                      });
+                    },
+                    items: sugarStyles
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
                           value: value,
                           child: SizedBox(
                             width: MediaQuery.of(context).size.width * 0.19,
                             child: Text(value.toString(),
                                 style: TextStyle(color: Colors.black)),
-                          )
-                        );
-                      }).toList(),
-                    ),
+                          ));
+                    }).toList(),
+                  ),
                 )),
               ],
             ),
@@ -454,7 +465,7 @@ class _WineListState extends State<WineList>
                   focusColor: Colors.black,
                 ),
                 onChanged: (value) {
-                    review = value;
+                  review = value;
                 }),
             SizedBox(
               height: 10,
@@ -509,7 +520,7 @@ class _WineListState extends State<WineList>
                   focusColor: Colors.black,
                 ),
                 onChanged: (value) {
-                    others = value;
+                  others = value;
                 }),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -615,8 +626,7 @@ class _WineListState extends State<WineList>
     });
   }
 
-  List<String> _validateWineItem(){
-    
+  List<String> _validateWineItem() {
     List<String> errors = [];
 
     if (wineName == null) {
@@ -631,7 +641,7 @@ class _WineListState extends State<WineList>
     if (review == null) {
       errors.add('Описание');
     }
-      
+
     return errors;
   }
 
@@ -654,7 +664,7 @@ class _WineListState extends State<WineList>
 
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
 
-    const url = 'http://212.220.216.173:10501/wine/api/add_wine';
+    const url = '$serverAPI/wine/api/add_wine';
 
     Dio dio = Dio();
     Response response = await dio.post(
@@ -711,7 +721,8 @@ class _WineListState extends State<WineList>
     };
 
     final response = await http.post(urlListItems,
-        body: json.encode({'query': query, 'page': page, 'sorting': sortMap[currentSort]}));
+        body: json.encode(
+            {'query': query, 'page': page, 'sorting': sortMap[currentSort]}));
 
     if (response.statusCode == 200) {
       return response.bodyBytes;

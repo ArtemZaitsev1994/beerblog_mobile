@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:beerblog/common/constants.dart';
+import 'package:beerblog/common/utils.dart';
 import 'package:beerblog/elems/appbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -52,8 +54,10 @@ class _AdminItemCardState extends State<AdminItemCard> {
   }
 
   Future<Map> _getAdminItem() async {
-    final url = 'http://212.220.216.173:10501/$itemType/get_${itemType}_item';
-    final response = await http.post(url, body: json.encode({'id': itemId}));
+    final url = '$serverAPI/admin/$itemType/get_item';
+    String token = (await LocalStorage.getStr('jwtToken') ?? '');
+    final response = await http.post(url,
+        headers: {'Authorization': '$token'}, body: json.encode({'id': itemId}));
 
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes));
@@ -63,8 +67,8 @@ class _AdminItemCardState extends State<AdminItemCard> {
 
   Widget _drawItem(Map _item) {
     item = _item;
-    not_confirmed = item[itemType]['not_confirmed'];
-    List fields = item[itemType].keys.toList();
+    not_confirmed = item['not_confirmed'];
+    List fields = item.keys.toList();
     return Column(children: <Widget>[
       Expanded(
           child: ListView.builder(
@@ -78,13 +82,16 @@ class _AdminItemCardState extends State<AdminItemCard> {
                   children: <Widget>[
                     Text('${fields[index]}'),
                     TextField(
-                      controller: TextEditingController(
-                          text: '${item[itemType][fields[index]]}'),
+                      controller:
+                          TextEditingController(text: '${item[fields[index]]}'),
                     ),
                   ],
                 ));
               })),
-      Text(serverAnswer, style: serverAnswerStyle,),
+      Text(
+        serverAnswer,
+        style: serverAnswerStyle,
+      ),
       Row(children: <Widget>[
         Expanded(
             child: RaisedButton(
@@ -100,7 +107,7 @@ class _AdminItemCardState extends State<AdminItemCard> {
         )),
         Expanded(
             child: RaisedButton(
-          child: Text('Удалить'),
+          child: Text('Удалить', style: TextStyle(color: Colors.red)),
           onPressed: _showDialog,
         )),
       ]),
@@ -108,92 +115,85 @@ class _AdminItemCardState extends State<AdminItemCard> {
   }
 
   void changeItemStatus() async {
-    setState(() {
-      serverAnswer = 'Успешно изменено';
-      serverAnswerStyle = TextStyle(color: Colors.green, fontSize: 18); 
-    });
-    return; 
     final url =
-        'http://212.220.216.173:10501/admin/$itemType/change_item_state';
-    final response = await http.post(url, body: json.encode({'id': itemId, 'not_confirmed': !item['not_confirmed']}));
-
+        '$serverAPI/admin/$itemType/change_item_state';
+    String token = (await LocalStorage.getStr('jwtToken') ?? '');
+    not_confirmed = item['not_confirmed'] == null ? true : false;
+    final response = await http.post(url,
+        headers: {'Authorization': '$token'},
+        body: json.encode({'id': itemId, 'not_confirmed': not_confirmed}));
     if (response.statusCode == 200) {
       Map jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       if (jsonResponse['success']) {
         setState(() {
           serverAnswer = 'Успешно изменено';
-          serverAnswerStyle = TextStyle(color: Colors.green, fontSize: 18); 
+          serverAnswerStyle = TextStyle(color: Colors.green, fontSize: 18);
         });
       } else {
         setState(() {
           serverAnswer = jsonResponse['message'];
-          serverAnswerStyle = TextStyle(color: Colors.red, fontSize: 18); 
+          serverAnswerStyle = TextStyle(color: Colors.red, fontSize: 18);
         });
       }
+    } else {
+      throw Exception('Error!!!: ${response.reasonPhrase}');
     }
-    throw Exception('Error: ${response.reasonPhrase}');
   }
 
-    void _showDialog() {
+  void _showDialog() {
     // flutter defined function
     showDialog(
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: Text("Точно удалить запись?"),
-          content: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                RaisedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    deleteItem();
-                  },
-                  child: const Text('Да', style: TextStyle(fontSize: 15)),
-                ),
-                RaisedButton(
-                  color: Colors.red,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Нет', style: TextStyle(fontSize: 15, color: Colors.black)),
-                ),
-              ],
-            ),
-          )
-        );
+            title: Text("Точно удалить запись?"),
+            content: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  RaisedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      deleteItem();
+                    },
+                    child: const Text('Да', style: TextStyle(fontSize: 15)),
+                  ),
+                  RaisedButton(
+                    color: Colors.red,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Нет',
+                        style: TextStyle(fontSize: 15, color: Colors.black)),
+                  ),
+                ],
+              ),
+            ));
       },
     );
   }
 
   void deleteItem() async {
-    setState(() {
-      serverAnswer = 'Успешно удалено';
-      serverAnswerStyle = TextStyle(color: Colors.green, fontSize: 18); 
-    });
-    return; 
-    final url =
-        'http://212.220.216.173:10501/admin/$itemType/delete_item';
-    final response = await http.post(url, body: json.encode({'id': itemId}));
+    final url = '$serverAPI/admin/$itemType/delete_item';
+    String token = (await LocalStorage.getStr('jwtToken') ?? '');
+    final response = await http.post(url,
+        headers: {'Authorization': '$token'},
+        body: json.encode({'id': itemId}));
 
     if (response.statusCode == 200) {
       Map jsonResponse = json.decode(utf8.decode(response.bodyBytes));
       if (jsonResponse['success']) {
-        setState(() {
-          serverAnswer = 'Успешно удалено';
-          serverAnswerStyle = TextStyle(color: Colors.green, fontSize: 18);
-          Navigator.pop(context);
-        });
+        Navigator.pushReplacementNamed(context, '/admin/$itemType');
       } else {
         setState(() {
           serverAnswer = jsonResponse['message'];
-          serverAnswerStyle = TextStyle(color: Colors.red, fontSize: 18); 
+          serverAnswerStyle = TextStyle(color: Colors.red, fontSize: 18);
         });
       }
+    } else {
+      throw Exception('Error!!!: ${response.reasonPhrase}');
     }
-    throw Exception('Error: ${response.reasonPhrase}');
   }
 }
