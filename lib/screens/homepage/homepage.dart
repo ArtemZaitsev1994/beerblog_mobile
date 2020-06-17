@@ -17,7 +17,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool validVersion;
-  String version = '0.0.1';
 
   @override
   void initState() {
@@ -27,20 +26,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (validVersion) {
-      return Scaffold(
-        appBar: MainAppBar(),
-        drawer: MainDrawer(),
-        body: _drawHomePageBody(context),
-        bottomSheet: drawVersionRow(context),
-      );
-    } else {
-      return Scaffold(
-        appBar: MainAppBar(),
-        body: _drawHomePageBody(context),
-        bottomSheet: drawVersionRow(context),
-      );
-    }
+    return drawVersionRow(context);
   }
 
   Widget drawVersionRow(BuildContext context) {
@@ -48,20 +34,29 @@ class _HomePageState extends State<HomePage> {
       future: compareVersions(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-            if (snapshot.data['isValid']) {
-              return _drawVersionRow(snapshot.data, context);
-            } else {
-                validVersion = false;
-                return Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Text(
-                      'v.$version',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
-                    ));
-            }
+          print(snapshot.data);
+          if (snapshot.data['isValid']) {
+            return Scaffold(
+              appBar: MainAppBar(),
+              drawer: MainDrawer(),
+              body: _drawHomePageBody(context),
+              bottomSheet: _drawVersionRow(snapshot.data, context),
+            );
+          } else {
+            return Scaffold(
+              appBar: MainAppBar(),
+              body: _drawBlockUpdate(context),
+              bottomSheet: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Text(
+                    'v.$version',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
+                  )),
+            );
+          }
         } else if (snapshot.hasError) {
           return Padding(
               padding: const EdgeInsets.all(10),
@@ -139,8 +134,7 @@ class _HomePageState extends State<HomePage> {
   Widget _drawHomePageBody(BuildContext context) {
     return SingleChildScrollView(
         padding: const EdgeInsets.all(10),
-        child: validVersion
-            ? Column(children: <Widget>[
+        child: Column(children: <Widget>[
                 Text(
                   'Просто блог, просто заметки о пиве, вине и прочем.',
                   style: Theme.of(context).textTheme.bodyText1,
@@ -165,8 +159,13 @@ class _HomePageState extends State<HomePage> {
                       }
                       return Center(child: CircularProgressIndicator());
                     })
-              ])
-            : Center(
+              ]));
+  }
+
+  Widget _drawBlockUpdate(BuildContext context) {
+    return SingleChildScrollView(
+        padding: const EdgeInsets.all(10),
+        child: Center(
                 child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 50, 20, 0),
                     child: RichText(
