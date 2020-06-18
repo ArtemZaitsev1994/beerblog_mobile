@@ -19,6 +19,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   String currentPassword;
   String newPass;
   String repeatedNewPass;
+  bool hideFields = true;
 
   @override
   void initState() {
@@ -37,52 +38,73 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   Widget _drawBody() {
     return SingleChildScrollView(
         padding: const EdgeInsets.all(10),
-        child: Column(children: <Widget>[
-          TextField(
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Текущий пароль',
-                fillColor: Colors.black54,
-                focusColor: Colors.black,
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              TextField(
+                  keyboardType: TextInputType.text,
+                  obscureText: hideFields,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Текущий пароль',
+                    fillColor: Colors.black54,
+                    focusColor: Colors.black,
+                  ),
+                  onChanged: (value) {
+                    currentPassword = value;
+                  }),
+              SizedBox(height: 10),
+              TextField(
+                  keyboardType: TextInputType.text,
+                  obscureText: hideFields,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Новый пароль',
+                    fillColor: Colors.black54,
+                    focusColor: Colors.black,
+                  ),
+                  onChanged: (value) {
+                    newPass = value;
+                  }),
+              SizedBox(height: 10),
+              TextField(
+                  keyboardType: TextInputType.text,
+                  obscureText: hideFields,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Повтори новый пароль',
+                    fillColor: Colors.black54,
+                    focusColor: Colors.black,
+                  ),
+                  onChanged: (value) {
+                    repeatedNewPass = value;
+                  }),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Checkbox(
+                      value: hideFields,
+                      onChanged: (bool value) {
+                        setState(() {
+                          hideFields = value;
+                        });
+                      }),
+                  Text('Спрятать пароли'),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  RaisedButton(
+                    child: Text('Сменить пароль'),
+                    onPressed: _changePassword,
+                  ),
+                ],
               ),
-              onChanged: (value) {
-                currentPassword = value;
-              }),
-          SizedBox(height: 10),
-          TextField(
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Новый пароль',
-                fillColor: Colors.black54,
-                focusColor: Colors.black,
-              ),
-              onChanged: (value) {
-                newPass = value;
-              }),
-          SizedBox(height: 10),
-          TextField(
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Повтори новый пароль',
-                fillColor: Colors.black54,
-                focusColor: Colors.black,
-              ),
-              onChanged: (value) {
-                repeatedNewPass = value;
-              }),
-          SizedBox(height: 40),
-          RaisedButton(
-            child: Text('Сменить пароль'),
-            onPressed: _changePassword,
-          ),
-          Text(
-            answer,
-            style: answerStyle,
-          )
-        ]));
+              Text(
+                answer,
+                style: answerStyle,
+              )
+            ]));
   }
 
   bool comparePasswords() {
@@ -105,25 +127,28 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       return;
     }
 
-    final url = '$serverAPI/api/change_password';
+    final url = '$serverAuth/api/change_password';
     String token = (await LocalStorage.getStr('jwtToken') ?? '');
     final response = await http.post(url,
         headers: {'Authorization': '$token'},
-        body:
-            json.encode({'new_psw': repeatedNewPass, 'psw': currentPassword}));
+        body: json.encode({
+          'new_psw': repeatedNewPass.toString(),
+          'psw': currentPassword.toString(),
+        }));
 
     if (response.statusCode == 200) {
       Map jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+      print(jsonResponse);
       if (jsonResponse['success']) {
         setState(() {
           answer = 'сменил';
           answerStyle = TextStyle(color: Colors.green);
         });
       } else {
-      setState(() {
-        answer = 'Неверный текущий пароль.';
-        answerStyle = TextStyle(color: Colors.red);
-      });
+        setState(() {
+          answer = 'Неверный текущий пароль.';
+          answerStyle = TextStyle(color: Colors.red);
+        });
       }
     } else {
       throw Exception('Error!!!: ${response.reasonPhrase}');
