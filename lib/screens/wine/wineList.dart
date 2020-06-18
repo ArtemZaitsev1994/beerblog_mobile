@@ -111,7 +111,7 @@ class _WineListState extends State<WineList>
         controller: _tabController,
         children: <Widget>[_firstScreenFuture(), _secondScreen()],
       ),
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: this._tabController.index == 0 ? false: true,
     );
   }
 
@@ -336,6 +336,7 @@ class _WineListState extends State<WineList>
                 )),
             SizedBox(height: 10),
             TextField(
+                keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'Название**',
@@ -347,6 +348,7 @@ class _WineListState extends State<WineList>
                 }),
             SizedBox(height: 10),
             TextField(
+                keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'Проиводитель',

@@ -23,3 +23,24 @@ Map<String, dynamic> _$QuoteToJson(Quote instance) => <String, dynamic>{
       'senderLink': instance.senderLink,
       'quoteLink': instance.quoteLink,
     };
+
+VersionAnswer _$VersionAnswerFromJson(Map<String, dynamic> json) {
+  return VersionAnswer(
+    curVersion: json['curVersion'] as String,
+    actual: json['actual'] as String,
+    link: json['link'] as String,
+    isValid: json['isValid'] as bool,
+    changes: (json['changes'] as List)
+        ?.map((e) => e as Map<String, dynamic>)
+        ?.toList(),
+  );
+}
+
+Map<String, dynamic> _$VersionAnswerToJson(VersionAnswer instance) =>
+    <String, dynamic>{
+      'curVersion': instance.curVersion,
+      'actual': instance.actual,
+      'link': instance.link,
+      'isValid': instance.isValid,
+      'changes': instance.changes,
+    };

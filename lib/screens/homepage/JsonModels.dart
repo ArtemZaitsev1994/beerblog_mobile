@@ -18,3 +18,20 @@ class Quote {
 
   Map<String, dynamic> toJson() => _$QuoteToJson(this);
 }
+
+
+@JsonSerializable()
+class VersionAnswer {
+  String curVersion;
+  String actual;
+  String link;
+  bool isValid;
+  List<Map> changes;
+
+  VersionAnswer({this.curVersion, this.actual, this.link, this.isValid, this.changes});
+
+
+  factory VersionAnswer.fromJson(Map<String, dynamic> json) => _$VersionAnswerFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VersionAnswerToJson(this);
+}
