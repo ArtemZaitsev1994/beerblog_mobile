@@ -211,7 +211,7 @@ class _HomePageState extends State<HomePage> {
                     itemCount: versionData.changes.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        title: Text('${versionData.changes[index]['version']}'),
+                        title: Text('v.${versionData.changes[index]['version']}'),
                         subtitle: Text(
                             sumNotes(versionData.changes[index]['changes'])),
                       );
@@ -224,16 +224,12 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.20,
                   child: RaisedButton(
                     child: new Text(
                       'Закрыть',
                       style: TextStyle(color: Colors.white),
                     ),
                     color: Colors.black,
-                    shape: new RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(30.0),
-                    ),
                     onPressed: () {
                       //saveIssue();
                       Navigator.of(context).pop();
@@ -342,7 +338,7 @@ class _HomePageState extends State<HomePage> {
                           itemBuilder: (context, index) {
                             return ListTile(
                               title: Text(
-                                  '${versionData.changes[index]['version']}'),
+                                  'v.${versionData.changes[index]['version']}'),
                               subtitle: Text(sumNotes(
                                   versionData.changes[index]['changes'])),
                             );
