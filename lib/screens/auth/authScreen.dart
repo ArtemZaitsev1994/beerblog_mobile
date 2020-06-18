@@ -31,19 +31,19 @@ class _AuthState extends State<Auth> {
       drawer: MainDrawer(),
       appBar: MainAppBar(),
       body: FutureBuilder(
-        future: _checkAuth(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            if (snapshot.data['user'] != null) {
-              return _drawUserData(snapshot.data['user']);
-            } else {
-              return _drawAuthorizatioin();
+          future: _checkAuth(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data['user'] != null) {
+                return _drawUserData(snapshot.data['user']);
+              } else {
+                return _drawAuthorizatioin();
+              }
+            } else if (snapshot.hasError) {
+              return Text('Error');
             }
-          } else if (snapshot.hasError) {
-            return Text('Error');
-          }
-          return Center(child: CircularProgressIndicator());
-        }),
+            return Center(child: CircularProgressIndicator());
+          }),
     );
   }
 
@@ -63,12 +63,25 @@ class _AuthState extends State<Auth> {
         SizedBox(
           height: 40,
         ),
-        RaisedButton(
-          padding: const EdgeInsets.all(8.0),
-          textColor: Colors.white,
-          color: Colors.blue,
-          onPressed: _logout,
-          child: Text("Разлогиниться"),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            RaisedButton(
+              padding: const EdgeInsets.all(8.0),
+              textColor: Colors.white,
+              color: Colors.blue,
+              onPressed: _logout,
+              child: Text("Разлогиниться"),
+            ),
+            SizedBox(width: 20,),
+            RaisedButton(
+              padding: const EdgeInsets.all(8.0),
+              textColor: Colors.white,
+              color: Color(123432),
+              onPressed: (){Navigator.of(context).pushNamed('/auth/change_password');},
+              child: Text("Сменить пароль"),
+            ),
+          ],
         ),
         success,
         SizedBox(
