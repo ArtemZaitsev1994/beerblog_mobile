@@ -247,7 +247,6 @@ class _BarListState extends State<BarList> with SingleTickerProviderStateMixin {
                 if (snapshot.hasData) {
                   BarData barsList =
                       BarData.fromJson(json.decode(utf8.decode(snapshot.data)));
-                  print(utf8.decode(snapshot.data));
                   return Column(children: <Widget>[
                     Expanded(
                         flex: 1,
@@ -353,7 +352,7 @@ class _BarListState extends State<BarList> with SingleTickerProviderStateMixin {
               children: <Widget>[
                 Expanded(
                   child: TextField(
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.text,
                       controller: TextEditingController(text: barItem['country']),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
@@ -368,7 +367,7 @@ class _BarListState extends State<BarList> with SingleTickerProviderStateMixin {
                 SizedBox(width: 10),
                 Expanded(
                   child: TextField(
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.text,
                       controller: TextEditingController(text: barItem['city']),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
